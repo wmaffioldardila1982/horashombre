@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Horas Hombre - Google Sheets</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .config-banner {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin: 20px;
+            border-radius: 5px;
+        }
+
+        .config-banner.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .config-banner h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .config-banner.success h3 {
+            color: #155724;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            color: #667eea;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+
+        textarea {
+            min-height: 100px;
+            font-family: monospace;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffd89b 0%, #ff9a56 100%);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background: #4a69bd;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            border: 1px solid #fff;
+        }
+        
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .delete-btn, .edit-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 2px;
+        }
+
+        .edit-btn {
+            background: #3498db;
+        }
+        
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .edit-btn:hover {
+            background: #2980b9;
+        }
+
+        .stats-table {
+            font-size: 14px;
+        }
+
+        .stats-table .frente-col {
+            text-align: left;
+            font-weight: 600;
+            background: #f8f9fa;
+        }
+
+        .stats-table .subtotal-row {
+            background: #e3f2fd;
+            font-weight: 700;
+        }
+
+        .stats-table .total-row {
+            background: #4a69bd;
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .periodo-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+
+        .periodo-selector label {
+            margin: 0;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding-right: 40px;
+        }
+
+        .trabajador-select {
+            border: 2px solid #667eea;
+            background: white;
+        }
+
+        .info-trabajador {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .info-trabajador p {
+            margin: 5px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .badge-directa {
+            background: #3498db;
+            color: white;
+        }
+
+        .badge-indirecta {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .badge-activo {
+            background: #27ae60;
+            color: white;
+        }
+
+        .badge-retirado {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .sync-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .sync-status.synced {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .sync-status.syncing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .sync-status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .trabajador-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .trabajador-checkbox:hover {
+            background: #e3f2fd;
+        }
+
+        .trabajador-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .trabajador-checkbox label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .trabajador-info {
+            font-size: 12px;
+            color: #666;
+            margin-left: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Control de Horas Hombre</h1>
+            <p>Sistema integrado con Google Sheets</p>
+            <span id="syncStatus" class="sync-status"></span>
+        </div>
+
+        <div id="configBanner" class="config-banner">
+            <h3>⚙️ Configuración Requerida</h3>
+            <p>Para usar esta aplicación, primero debes configurar la conexión con Google Sheets. Ve a la pestaña "Configuración".</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab" onclick="showTab('configuracion')">⚙️ Configuración</button>
+            <button class="tab" onclick="showTab('registro')" id="tabRegistro" disabled>📝 Registro</button>
+            <button class="tab" onclick="showTab('trabajadores')" id="tabTrabajadores" disabled>👥 Trabajadores</button>
+            <button class="tab" onclick="showTab('estadisticas')" id="tabEstadisticas" disabled>📈 Estadísticas</button>
+            <button class="tab" onclick="showTab('datos')" id="tabDatos" disabled>📋 Datos Detallados</button>
+        </div>
+        
+        <div class="content">
+            <!-- TAB CONFIGURACIÓN -->
+            <div id="configuracion" class="tab-content active">
+                <h2>Configuración de Google Sheets</h2>
+                
+                <div class="instructions">
+                    <h3>📋 Instrucciones de Configuración</h3>
+                    <ol>
+                        <li><strong>Crea una copia de la plantilla de Google Sheets:</strong>
+                            <br><a href="https://docs.google.com/spreadsheets/d/1fOmrKLgjN8kKu_ejemplo/copy" target="_blank" style="color: #667eea;">Haz clic aquí para copiar la plantilla</a>
+                            <br>(Se abrirá una copia en tu Google Drive)
+                        </li>
+                        <li><strong>Abre tu copia y ve a:</strong> Extensiones → Apps Script</li>
+                        <li><strong>Copia y pega este código</strong> en el editor de Apps Script:
+                            <div class="code-block">
+function doGet(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet();
+  const action = e.parameter.action;
+  
+  if (action === 'getTrabajadores') {
+    const data = sheet.getSheetByName('Trabajadores').getDataRange().getValues();
+    return ContentService.createTextOutput(JSON.stringify(data.slice(1)));
+  }
+  
+  if (action === 'getRegistros') {
+    const data = sheet.getSheetByName('Registros').getDataRange().getValues();
+    return ContentService.createTextOutput(JSON.stringify(data.slice(1)));
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({error: 'Acción no válida'}));
+}
+
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet();
+  const data = JSON.parse(e.postData.contents);
+  
+  if (data.action === 'addTrabajador') {
+    const ws = sheet.getSheetByName('Trabajadores');
+    ws.appendRow([data.cedula, data.nombreCompleto, data.cargo, data.tipoCargo, data.fechaIngreso, data.fechaRetiro || '']);
+    return ContentService.createTextOutput(JSON.stringify({success: true}));
+  }
+  
+  if (data.action === 'addRegistro') {
+    const ws = sheet.getSheetByName('Registros');
+    ws.appendRow([data.fecha, data.trabajadorNombre, data.trabajadorCedula, data.frente, data.horasDirecta, data.horasIndirecta]);
+    return ContentService.createTextOutput(JSON.stringify({success: true}));
+  }
+  
+  if (data.action === 'updateTrabajador') {
+    const ws = sheet.getSheetByName('Trabajadores');
+    const values = ws.getDataRange().getValues();
+    for (let i = 1; i < values.length; i++) {
+      if (values[i][0] === data.cedula) {
+        ws.getRange(i + 1, 1, 1, 6).setValues([[data.cedula, data.nombreCompleto, data.cargo, data.tipoCargo, data.fechaIngreso, data.fechaRetiro || '']]);
+        break;
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({success: true}));
+  }
+  
+  if (data.action === 'deleteTrabajador') {
+    const ws = sheet.getSheetByName('Trabajadores');
+    const values = ws.getDataRange().getValues();
+    for (let i = 1; i < values.length; i++) {
+      if (values[i][0] === data.cedula) {
+        ws.deleteRow(i + 1);
+        break;
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({success: true}));
+  }
+  
+  if (data.action === 'deleteRegistro') {
+    const ws = sheet.getSheetByName('Registros');
+    const values = ws.getDataRange().getValues();
+    for (let i = 1; i < values.length; i++) {
+      if (values[i][0] === data.fecha && values[i][2] === data.cedula) {
+        ws.deleteRow(i + 1);
+        break;
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({success: true}));
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({error: 'Acción no válida'}));
+}
+                            </div>
+                        </li>
+                        <li><strong>Guarda el proyecto</strong> (icono de disquete)</li>
+                        <li><strong>Haz clic en "Implementar"</strong> → "Nueva implementación"</li>
+                        <li>Selecciona tipo: <strong>"Aplicación web"</strong></li>
+                        <li>Configuración:
+                            <ul>
+                                <li>Ejecutar como: <strong>Yo</strong></li>
+                                <li>Quién tiene acceso: <strong>Cualquier persona</strong></li>
+                            </ul>
+                        </li>
+                        <li><strong>Autoriza el acceso</strong> (la primera vez te pedirá permisos)</li>
+                        <li><strong>Copia la URL</strong> que te da (termina en /exec)</li>
+                        <li><strong>Pégala abajo</strong> y guarda la configuración</li>
+                    </ol>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Importante:</strong> La URL debe terminar en <code>/exec</code> (no en <code>/dev</code>)
+                </div>
+
+                <form id="configForm">
+                    <div class="form-group">
+                        <label for="webAppUrl">URL de tu Web App de Google Sheets:</label>
+                        <input type="url" id="webAppUrl" placeholder="https://script.google.com/macros/s/TU_ID/exec" required>
+                    </div>
+                    <button type="submit">💾 Guardar y Probar Conexión</button>
+                    <button type="button" class="btn-warning" onclick="crearPlantillaLocal()">📄 Crear Plantilla Manual</button>
+                </form>
+
+                <div id="loadingConfig" class="loading">
+                    <div class="spinner"></div>
+                    <p>Probando conexión...</p>
+                </div>
+            </div>
+
+            <!-- TAB REGISTRO DE HORAS -->
+            <div id="registro" class="tab-content">
+                <h2>Registrar Horas</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <button onclick="mostrarRegistroSimple()" class="btn-info">📝 Registro Simple</button>
+                    <button onclick="mostrarRegistroMasivo()" class="btn-success">👥 Registro Masivo</button>
+                    <button onclick="importarRegistrosExcel()" class="btn-warning">📤 Importar Excel</button>
+                    <input type="file" id="fileImportRegistros" accept=".xlsx,.xls" style="display:none" onchange="procesarArchivoRegistros(event)">
+                </div>
+
+                <!-- FORMULARIO SIMPLE -->
+                <div id="formSimple">
+                    <form id="registroForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fecha">Fecha:</label>
+                                <input type="date" id="fecha" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="trabajadorSelect">Trabajador:</label>
+                                <select id="trabajadorSelect" class="trabajador-select" required>
+                                    <option value="">-- Seleccione un trabajador --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="infoTrabajador" class="info-trabajador" style="display: none;">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="frente">Frente de Trabajo:</label>
+                                <input type="text" id="frente" placeholder="Ej: K948, PLANEACIÓN" required list="frentesList">
+                                <datalist id="frentesList">
+                                    <option value="PLANEACIÓN">
+                                    <option value="ADMINISTRATIVO">
+                                    <option value="K948">
+                                    <option value="K90z">
+                                    <option value="K940">
+                                    <option value="K939">
+                                    <option value="K935">
+                                    <option value="K104">
+                                    <option value="K95">
+                                </datalist>
+                            </div>
+                            <div class="form-group">
+                                <label for="horasDirecta">Horas Directa:</label>
+                                <input type="number" id="horasDirecta" step="0.5" min="0" placeholder="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="horasIndirecta">Horas Indirecta:</label>
+                                <input type="number" id="horasIndirecta" step="0.5" min="0" placeholder="0" value="0">
+                            </div>
+                        </div>
+                        <button type="submit">Agregar Registro</button>
+                        <button type="button" class="btn-info" onclick="sincronizar()">🔄 Sincronizar</button>
+                    </form>
+                </div>
+
+                <!-- FORMULARIO MASIVO -->
+                <div id="formMasivo" style="display: none;">
+                    <form id="registroMasivoForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fechaMasiva">Fecha:</label>
+                                <input type="date" id="fechaMasiva" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="frenteMasivo">Frente de Trabajo:</label>
+                                <input type="text" id="frenteMasivo" placeholder="Ej: K948" required list="frentesList">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="horasDirectaMasiva">Horas Directa (por defecto):</label>
+                                <input type="number" id="horasDirectaMasiva" step="0.5" min="0" placeholder="8" value="8">
+                            </div>
+                            <div class="form-group">
+                                <label for="horasIndirectaMasiva">Horas Indirecta (por defecto):</label>
+                                <input type="number" id="horasIndirectaMasiva" step="0.5" min="0" placeholder="0" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Selecciona los trabajadores:</label>
+                            <div class="search-box">
+                                <input type="text" id="buscarTrabajadorMasivo" placeholder="🔍 Buscar trabajador..." onkeyup="filtrarTrabajadoresMasivo()">
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; max-height: 400px; overflow-y: auto;">
+                                <div style="margin-bottom: 10px;">
+                                    <button type="button" onclick="seleccionarTodosTrabajadores()" class="btn-info">✓ Seleccionar Todos</button>
+                                    <button type="button" onclick="deseleccionarTodosTrabajadores()" class="btn-secondary">✗ Deseleccionar Todos</button>
+                                    <span id="contadorSeleccionados" style="margin-left: 15px; font-weight: 600;"></span>
+                                </div>
+                                <div id="listaTrabajadoresMasivo"></div>
+                            </div>
+                        </div>
+
+                        <button type="submit">💾 Registrar Todos</button>
+                        <button type="button" class="btn-secondary" onclick="mostrarRegistroSimple()">Cancelar</button>
+                    </form>
+                </div>
+
+                <div id="loadingRegistro" class="loading">
+                    <div class="spinner"></div>
+                    <p>Guardando...</p>
+                </div>
+            </div>
+
+            <!-- TAB TRABAJADORES -->
+            <div id="trabajadores" class="tab-content">
+                <h2>Gestión de Trabajadores</h2>
+                <button onclick="mostrarModalTrabajador()">➕ Nuevo Trabajador</button>
+                <button class="btn-info" onclick="sincronizar()">🔄 Sincronizar</button>
+                
+                <div class="search-box">
+                    <input type="text" id="buscarTrabajador" placeholder="🔍 Buscar por nombre, cédula o cargo..." onkeyup="filtrarTrabajadores()">
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table id="tablaTrabajadores">
+                        <thead>
+                            <tr>
+                                <th>Cédula</th>
+                                <th>Nombre Completo</th>
+                                <th>Cargo</th>
+                                <th>Tipo de Cargo</th>
+                                <th>Fecha Ingreso</th>
+                                <th>Fecha Retiro</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyTrabajadores">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="loadingTrabajadores" class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando trabajadores...</p>
+                </div>
+            </div>
+            
+            <!-- TAB ESTADÍSTICAS -->
+            <div id="estadisticas" class="tab-content">
+                <h2>Estadísticas del Proyecto</h2>
+                
+                <div class="periodo-selector">
+                    <label for="fechaInicio">Período desde:</label>
+                    <input type="date" id="fechaInicio">
+                    <label for="fechaFin">hasta:</label>
+                    <input type="date" id="fechaFin">
+                    <button onclick="actualizarEstadisticas()">Actualizar</button>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">FRENTE</th>
+                                <th colspan="2">CANTIDAD DE PERSONAL</th>
+                                <th colspan="4">CANTIDAD DE HH</th>
+                            </tr>
+                            <tr>
+                                <th>DIRECTA</th>
+                                <th>INDIRECTA</th>
+                                <th colspan="2">PERÍODO</th>
+                                <th colspan="2">ACUMULADO</th>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>DIRECTA</th>
+                                <th>INDIRECTA</th>
+                                <th>DIRECTA</th>
+                                <th>INDIRECTA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- TAB DATOS DETALLADOS -->
+            <div id="datos" class="tab-content">
+                <h2>Registros Detallados</h2>
+                <div style="overflow-x: auto;">
+                    <table id="tablaRegistros">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Trabajador</th>
+                                <th>Cédula</th>
+                                <th>Frente</th>
+                                <th>Horas Directa</th>
+                                <th>Horas Indirecta</th>
+                                <th>Total Horas</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyRegistros">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TRABAJADOR -->
+    <div id="modalTrabajador" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo Trabajador</h2>
+                <span class="close" onclick="cerrarModalTrabajador()">&times;</span>
+            </div>
+            <form id="formTrabajador">
+                <input type="hidden" id="cedulaOriginal">
+                <div class="form-group">
+                    <label for="cedula">Número de Cédula:</label>
+                    <input type="text" id="cedula" required>
+                </div>
+                <div class="form-group">
+                    <label for="nombreCompleto">Nombre Completo:</label>
+                    <input type="text" id="nombreCompleto" required>
+                </div>
+                <div class="form-group">
+                    <label for="cargo">Cargo:</label>
+                    <input type="text" id="cargo" required>
+                </div>
+                <div class="form-group">
+                    <label for="tipoCargo">Tipo de Cargo:</label>
+                    <select id="tipoCargo" required>
+                        <option value="">-- Seleccione --</option>
+                        <option value="Directa">Directa</option>
+                        <option value="Indirecta">Indirecta</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fechaIngreso">Fecha de Ingreso:</label>
+                    <input type="date" id="fechaIngreso" required>
+                </div>
+                <div class="form-group">
+                    <label for="fechaRetiro">Fecha de Retiro (opcional):</label>
+                    <input type="date" id="fechaRetiro">
+                </div>
+                <button type="submit">Guardar Trabajador</button>
+                <button type="button" class="btn-secondary" onclick="cerrarModalTrabajador()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let registros = [];
+        let trabajadores = [];
+        let webAppUrl = '';
+        let isConfigured = false;
+        
+        // Cargar configuración
+        cargarConfiguracion();
+        
+        // Cargar fecha actual
+        document.getElementById('fecha').valueAsDate = new Date();
+        document.getElementById('fechaMasiva').valueAsDate = new Date();
+        
+        // Establecer período por defecto
+        const hoy = new Date();
+        document.getElementById('fechaFin').valueAsDate = hoy;
+        const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        document.getElementById('fechaInicio').valueAsDate = inicioMes;
+
+        // FORM CONFIGURACIÓN
+        document.getElementById('configForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            webAppUrl = document.getElementById('webAppUrl').value.trim();
+            document.getElementById('loadingConfig').classList.add('active');
+            
+            try {
+                // Probar conexión
+                const response = await fetch(webAppUrl + '?action=getTrabajadores');
+                const data = await response.json();
+                
+                // Guardar configuración
+                localStorage.setItem('webAppUrl', webAppUrl);
+                isConfigured = true;
+                
+                // Actualizar UI
+                document.getElementById('configBanner').innerHTML = '<h3>✅ Configuración Exitosa</h3><p>La conexión con Google Sheets funciona correctamente.</p>';
+                document.getElementById('configBanner').className = 'config-banner success';
+                
+                // Habilitar tabs
+                document.getElementById('tabRegistro').disabled = false;
+                document.getElementById('tabTrabajadores').disabled = false;
+                document.getElementById('tabEstadisticas').disabled = false;
+                document.getElementById('tabDatos').disabled = false;
+                
+                // Cargar datos
+                await sincronizar();
+                
+                alert('✅ Configuración guardada exitosamente');
+                showTab('registro');
+                
+            } catch (error) {
+                alert('❌ Error al conectar con Google Sheets. Verifica la URL y que el script esté publicado correctamente.');
+                console.error(error);
+            } finally {
+                document.getElementById('loadingConfig').classList.remove('active');
+            }
+        });
+        
+        // FORM REGISTRO HORAS
+        document.getElementById('registroForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!isConfigured) {
+                alert('Primero debes configurar la conexión con Google Sheets');
+                return;
+            }
+            
+            const horasDirecta = parseFloat(document.getElementById('horasDirecta').value) || 0;
+            const horasIndirecta = parseFloat(document.getElementById('horasIndirecta').value) || 0;
+            
+            if (horasDirecta === 0 && horasIndirecta === 0) {
+                alert('Debe ingresar al menos horas directas o indirectas');
+                return;
+            }
+            
+            const trabajadorCedula = document.getElementById('trabajadorSelect').value;
+            const trabajador = trabajadores.find(t => t.cedula === trabajadorCedula);
+            
+            if (!trabajador) {
+                alert('Debe seleccionar un trabajador válido');
+                return;
+            }
+            
+            const registro = {
+                id: Date.now() + Math.random(), // ID único
+                fecha: document.getElementById('fecha').value,
+                trabajadorNombre: trabajador.nombreCompleto,
+                trabajadorCedula: trabajador.cedula,
+                frente: document.getElementById('frente').value.toUpperCase(),
+                horasDirecta: horasDirecta,
+                horasIndirecta: horasIndirecta
+            };
+            
+            document.getElementById('loadingRegistro').classList.add('active');
+            
+            try {
+                await fetch(webAppUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'addRegistro',
+                        ...registro
+                    })
+                });
+                
+                registros.push(registro);
+                actualizarTabla();
+                actualizarEstadisticas();
+                
+                this.reset();
+                document.getElementById('fecha').valueAsDate = new Date();
+                document.getElementById('horasDirecta').value = '0';
+                document.getElementById('horasIndirecta').value = '0';
+                document.getElementById('infoTrabajador').style.display = 'none';
+                
+                setSyncStatus('synced');
+                alert('✓ Registro agregado exitosamente');
+                
+            } catch (error) {
+                setSyncStatus('error');
+                alert('❌ Error al guardar. Verifica tu conexión.');
+                console.error(error);
+            } finally {
+                document.getElementById('loadingRegistro').classList.remove('active');
+            }
+        });
+
+        // FORM REGISTRO MASIVO
+        document.getElementById('registroMasivoForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!isConfigured) {
+                alert('Primero debes configurar la conexión con Google Sheets');
+                return;
+            }
+            
+            const trabajadoresSeleccionados = Array.from(document.querySelectorAll('#listaTrabajadoresMasivo input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+            
+            if (trabajadoresSeleccionados.length === 0) {
+                alert('Debes seleccionar al menos un trabajador');
+                return;
+            }
+            
+            const horasDirecta = parseFloat(document.getElementById('horasDirectaMasiva').value) || 0;
+            const horasIndirecta = parseFloat(document.getElementById('horasIndirectaMasiva').value) || 0;
+            
+            if (horasDirecta === 0 && horasIndirecta === 0) {
+                alert('Debe ingresar al menos horas directas o indirectas');
+                return;
+            }
+            
+            const fecha = document.getElementById('fechaMasiva').value;
+            const frente = document.getElementById('frenteMasivo').value.toUpperCase();
+            
+            if (!confirm(`¿Registrar ${trabajadoresSeleccionados.length} trabajadores en el frente ${frente}?`)) {
+                return;
+            }
+            
+            document.getElementById('loadingRegistro').classList.add('active');
+            let exitosos = 0;
+            let errores = 0;
+            
+            try {
+                for (const cedula of trabajadoresSeleccionados) {
+                    const trabajador = trabajadores.find(t => t.cedula === cedula);
+                    if (!trabajador) continue;
+                    
+                    const registro = {
+                        fecha: fecha,
+                        trabajadorNombre: trabajador.nombreCompleto,
+                        trabajadorCedula: trabajador.cedula,
+                        frente: frente,
+                        horasDirecta: horasDirecta,
+                        horasIndirecta: horasIndirecta
+                    };
+                    
+                    try {
+                        await fetch(webAppUrl, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                action: 'addRegistro',
+                                ...registro
+                            })
+                        });
+                        
+                        registros.push(registro);
+                        exitosos++;
+                    } catch (error) {
+                        console.error('Error al guardar registro:', error);
+                        errores++;
+                    }
+                }
+                
+                actualizarTabla();
+                actualizarEstadisticas();
+                
+                setSyncStatus('synced');
+                alert(`✓ Registros completados:\n- Exitosos: ${exitosos}\n- Errores: ${errores}`);
+                
+                mostrarRegistroSimple();
+                
+            } catch (error) {
+                setSyncStatus('error');
+                alert('❌ Error al guardar. Verifica tu conexión.');
+                console.error(error);
+            } finally {
+                document.getElementById('loadingRegistro').classList.remove('active');
+            }
+        });
+
+        // FORM TRABAJADOR
+        document.getElementById('formTrabajador').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const cedulaOriginal = document.getElementById('cedulaOriginal').value;
+            const esEdicion = cedulaOriginal !== '';
+            
+            const trabajadorData = {
+                cedula: document.getElementById('cedula').value,
+                nombreCompleto: document.getElementById('nombreCompleto').value,
+                cargo: document.getElementById('cargo').value,
+                tipoCargo: document.getElementById('tipoCargo').value,
+                fechaIngreso: document.getElementById('fechaIngreso').value,
+                fechaRetiro: document.getElementById('fechaRetiro').value || ''
+            };
+            
+            try {
+                if (esEdicion) {
+                    await fetch(webAppUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'updateTrabajador',
+                            ...trabajadorData
+                        })
+                    });
+                    
+                    const index = trabajadores.findIndex(t => t.cedula === cedulaOriginal);
+                    if (index !== -1) {
+                        trabajadores[index] = trabajadorData;
+                    }
+                } else {
+                    await fetch(webAppUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'addTrabajador',
+                            ...trabajadorData
+                        })
+                    });
+                    
+                    trabajadores.push(trabajadorData);
+                }
+                
+                actualizarTablaTrabajadores();
+                actualizarSelectTrabajadores();
+                cerrarModalTrabajador();
+                setSyncStatus('synced');
+                alert('✓ Trabajador guardado exitosamente');
+                
+            } catch (error) {
+                setSyncStatus('error');
+                alert('❌ Error al guardar. Verifica tu conexión.');
+                console.error(error);
+            }
+        });
+
+        // Evento cambio trabajador
+        document.getElementById('trabajadorSelect').addEventListener('change', function() {
+            const trabajadorCedula = this.value;
+            if (trabajadorCedula) {
+                const trabajador = trabajadores.find(t => t.cedula === trabajadorCedula);
+                mostrarInfoTrabajador(trabajador);
+            } else {
+                document.getElementById('infoTrabajador').style.display = 'none';
+            }
+        });
+
+        function mostrarInfoTrabajador(trabajador) {
+            const infoDiv = document.getElementById('infoTrabajador');
+            const estado = trabajador.fechaRetiro ? 
+                `<span class="badge badge-retirado">Retirado</span>` : 
+                `<span class="badge badge-activo">Activo</span>`;
+            const tipoBadge = trabajador.tipoCargo === 'Directa' ? 
+                'badge-directa' : 'badge-indirecta';
+            
+            infoDiv.innerHTML = `
+                <p><strong>Cédula:</strong> ${trabajador.cedula}</p>
+                <p><strong>Cargo:</strong> ${trabajador.cargo} <span class="badge ${tipoBadge}">${trabajador.tipoCargo}</span></p>
+                <p><strong>Ingreso:</strong> ${new Date(trabajador.fechaIngreso + 'T00:00:00').toLocaleDateString('es-ES')} ${estado}</p>
+            `;
+            infoDiv.style.display = 'block';
+        }
+
+        function cargarConfiguracion() {
+            webAppUrl = localStorage.getItem('webAppUrl') || '';
+            if (webAppUrl) {
+                document.getElementById('webAppUrl').value = webAppUrl;
+                isConfigured = true;
+                document.getElementById('configBanner').innerHTML = '<h3>✅ Configuración Guardada</h3><p>Puedes usar la aplicación normalmente.</p>';
+                document.getElementById('configBanner').className = 'config-banner success';
+                document.getElementById('tabRegistro').disabled = false;
+                document.getElementById('tabTrabajadores').disabled = false;
+                document.getElementById('tabEstadisticas').disabled = false;
+                document.getElementById('tabDatos').disabled = false;
+                sincronizar();
+            }
+        }
+
+        async function sincronizar() {
+            if (!isConfigured) return;
+            
+            setSyncStatus('syncing');
+            
+            try {
+                // Cargar trabajadores
+                const resTrab = await fetch(webAppUrl + '?action=getTrabajadores');
+                const dataTrab = await resTrab.json();
+                
+                console.log('Datos RAW de trabajadores:', dataTrab);
+                
+                trabajadores = dataTrab.map(row => {
+                    console.log('Procesando fila:', row);
+                    
+                    // Convertir fechas de Google Sheets
+                    let fechaIngreso = row[4];
+                    let fechaRetiro = row[5];
+                    
+                    console.log('Fecha ingreso original:', fechaIngreso, typeof fechaIngreso);
+                    console.log('Fecha retiro original:', fechaRetiro, typeof fechaRetiro);
+                    
+                    // Función auxiliar para convertir fecha a YYYY-MM-DD
+                    const normalizarFecha = (fecha) => {
+                        if (!fecha) return null;
+                        
+                        // Si es string con formato ISO (2025-11-03T05:00:00.000Z)
+                        if (typeof fecha === 'string' && fecha.includes('T')) {
+                            return fecha.split('T')[0];
+                        }
+                        
+                        // Si es un número (fecha serial de Excel/Sheets)
+                        if (typeof fecha === 'number') {
+                            return convertirFechaSerial(fecha);
+                        }
+                        
+                        // Si es objeto Date
+                        if (fecha instanceof Date) {
+                            return fecha.toISOString().split('T')[0];
+                        }
+                        
+                        // Si es string con formato DD/MM/YYYY
+                        if (typeof fecha === 'string' && fecha.includes('/')) {
+                            const partes = fecha.split('/');
+                            if (partes.length === 3) {
+                                return `${partes[2]}-${partes[1].padStart(2,'0')}-${partes[0].padStart(2,'0')}`;
+                            }
+                        }
+                        
+                        // Si ya está en formato YYYY-MM-DD
+                        if (typeof fecha === 'string' && fecha.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                            return fecha;
+                        }
+                        
+                        return fecha;
+                    };
+                    
+                    fechaIngreso = normalizarFecha(fechaIngreso);
+                    fechaRetiro = normalizarFecha(fechaRetiro);
+                    
+                    console.log('Fecha ingreso convertida:', fechaIngreso);
+                    console.log('Fecha retiro convertida:', fechaRetiro);
+                    
+                    return {
+                        cedula: String(row[0]),
+                        nombreCompleto: row[1],
+                        cargo: row[2],
+                        tipoCargo: row[3],
+                        fechaIngreso: fechaIngreso,
+                        fechaRetiro: fechaRetiro
+                    };
+                });
+                
+                console.log('Trabajadores procesados:', trabajadores);
+                
+                // Cargar registros
+                const resReg = await fetch(webAppUrl + '?action=getRegistros');
+                const dataReg = await resReg.json();
+                
+                console.log('Datos RAW de registros:', dataReg);
+                
+                registros = dataReg.map(row => {
+                    // Normalizar fecha del registro
+                    let fecha = row[0];
+                    if (typeof fecha === 'string' && fecha.includes('T')) {
+                        fecha = fecha.split('T')[0];
+                    } else if (typeof fecha === 'number') {
+                        fecha = convertirFechaSerial(fecha);
+                    } else if (fecha instanceof Date) {
+                        fecha = fecha.toISOString().split('T')[0];
+                    }
+                    
+                    return {
+                        id: row[6] || (Date.now() + Math.random()), // ID único, columna 7 en Sheets
+                        fecha: fecha,
+                        trabajadorNombre: row[1],
+                        trabajadorCedula: String(row[2]),
+                        frente: row[3],
+                        horasDirecta: parseFloat(row[4]) || 0,
+                        horasIndirecta: parseFloat(row[5]) || 0
+                    };
+                });
+                
+                console.log('Registros procesados:', registros);
+                
+                actualizarSelectTrabajadores();
+                actualizarTablaTrabajadores();
+                actualizarTabla();
+                actualizarEstadisticas();
+                
+                setSyncStatus('synced');
+                
+            } catch (error) {
+                setSyncStatus('error');
+                console.error('Error al sincronizar:', error);
+            }
+        }
+
+        function setSyncStatus(status) {
+            const statusEl = document.getElementById('syncStatus');
+            statusEl.className = 'sync-status ' + status;
+            
+            if (status === 'synced') {
+                statusEl.textContent = '✓ Sincronizado';
+            } else if (status === 'syncing') {
+                statusEl.textContent = '⟳ Sincronizando...';
+            } else if (status === 'error') {
+                statusEl.textContent = '⚠ Error de conexión';
+            } else {
+                statusEl.textContent = '';
+            }
+        }
+
+        function convertirFechaSerial(serial) {
+            // Google Sheets usa el sistema de fechas de Excel (desde 1899-12-30)
+            const diasDesde1900 = serial - 1;
+            const fecha = new Date(1899, 11, 30);
+            fecha.setDate(fecha.getDate() + diasDesde1900);
+            
+            const year = fecha.getFullYear();
+            const month = String(fecha.getMonth() + 1).padStart(2, '0');
+            const day = String(fecha.getDate()).padStart(2, '0');
+            
+            return `${year}-${month}-${day}`;
+        }
+
+        function actualizarSelectTrabajadores() {
+            const select = document.getElementById('trabajadorSelect');
+            select.innerHTML = '<option value="">-- Seleccione un trabajador --</option>';
+            
+            trabajadores
+                .filter(t => !t.fechaRetiro)
+                .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))
+                .forEach(trabajador => {
+                    const option = document.createElement('option');
+                    option.value = trabajador.cedula;
+                    option.textContent = `${trabajador.nombreCompleto} (${trabajador.cedula})`;
+                    select.appendChild(option);
+                });
+        }
+
+        function actualizarTablaTrabajadores() {
+            const tbody = document.getElementById('bodyTrabajadores');
+            tbody.innerHTML = '';
+            
+            trabajadores
+                .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))
+                .forEach(trabajador => {
+                    const tr = document.createElement('tr');
+                    const estado = trabajador.fechaRetiro ? 
+                        '<span class="badge badge-retirado">Retirado</span>' : 
+                        '<span class="badge badge-activo">Activo</span>';
+                    
+                    // Formatear fechas correctamente
+                    let fechaIngresoFormateada = '-';
+                    let fechaRetiroFormateada = '-';
+                    
+                    if (trabajador.fechaIngreso) {
+                        try {
+                            const fecha = new Date(trabajador.fechaIngreso + 'T00:00:00');
+                            if (!isNaN(fecha.getTime())) {
+                                fechaIngresoFormateada = fecha.toLocaleDateString('es-ES');
+                            }
+                        } catch (e) {
+                            fechaIngresoFormateada = trabajador.fechaIngreso;
+                        }
+                    }
+                    
+                    if (trabajador.fechaRetiro) {
+                        try {
+                            const fecha = new Date(trabajador.fechaRetiro + 'T00:00:00');
+                            if (!isNaN(fecha.getTime())) {
+                                fechaRetiroFormateada = fecha.toLocaleDateString('es-ES');
+                            }
+                        } catch (e) {
+                            fechaRetiroFormateada = trabajador.fechaRetiro;
+                        }
+                    }
+                    
+                    tr.innerHTML = `
+                        <td>${trabajador.cedula}</td>
+                        <td style="text-align: left;">${trabajador.nombreCompleto}</td>
+                        <td>${trabajador.cargo}</td>
+                        <td>${trabajador.tipoCargo}</td>
+                        <td>${fechaIngresoFormateada}</td>
+                        <td>${fechaRetiroFormateada}</td>
+                        <td>${estado}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editarTrabajador('${trabajador.cedula}')">Editar</button>
+                            <button class="delete-btn" onclick="eliminarTrabajador('${trabajador.cedula}')">Eliminar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+        }
+
+        function filtrarTrabajadores() {
+            const busqueda = document.getElementById('buscarTrabajador').value.toLowerCase();
+            const filas = document.querySelectorAll('#bodyTrabajadores tr');
+            
+            filas.forEach(fila => {
+                const texto = fila.textContent.toLowerCase();
+                fila.style.display = texto.includes(busqueda) ? '' : 'none';
+            });
+        }
+
+        function mostrarModalTrabajador() {
+            document.getElementById('cedulaOriginal').value = '';
+            document.getElementById('modalTitle').textContent = 'Nuevo Trabajador';
+            document.getElementById('formTrabajador').reset();
+            document.getElementById('modalTrabajador').style.display = 'block';
+        }
+
+        function editarTrabajador(cedula) {
+            const trabajador = trabajadores.find(t => t.cedula === cedula);
+            if (!trabajador) return;
+            
+            document.getElementById('cedulaOriginal').value = cedula;
+            document.getElementById('modalTitle').textContent = 'Editar Trabajador';
+            document.getElementById('cedula').value = trabajador.cedula;
+            document.getElementById('nombreCompleto').value = trabajador.nombreCompleto;
+            document.getElementById('cargo').value = trabajador.cargo;
+            document.getElementById('tipoCargo').value = trabajador.tipoCargo;
+            document.getElementById('fechaIngreso').value = trabajador.fechaIngreso;
+            document.getElementById('fechaRetiro').value = trabajador.fechaRetiro || '';
+            document.getElementById('modalTrabajador').style.display = 'block';
+        }
+
+        async function eliminarTrabajador(cedula) {
+            const trabajador = trabajadores.find(t => t.cedula === cedula);
+            const tieneRegistros = registros.some(r => r.trabajadorCedula === cedula);
+            
+            let mensaje = `¿Está seguro de eliminar a ${trabajador.nombreCompleto}?`;
+            if (tieneRegistros) {
+                mensaje += '\n\nADVERTENCIA: Este trabajador tiene registros de horas asociados.';
+            }
+            
+            if (confirm(mensaje)) {
+                try {
+                    await fetch(webAppUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'deleteTrabajador',
+                            cedula: cedula
+                        })
+                    });
+                    
+                    trabajadores = trabajadores.filter(t => t.cedula !== cedula);
+                    actualizarTablaTrabajadores();
+                    actualizarSelectTrabajadores();
+                    setSyncStatus('synced');
+                    
+                } catch (error) {
+                    setSyncStatus('error');
+                    alert('❌ Error al eliminar. Verifica tu conexión.');
+                    console.error(error);
+                }
+            }
+        }
+
+        function cerrarModalTrabajador() {
+            document.getElementById('modalTrabajador').style.display = 'none';
+        }
+
+        function actualizarTabla() {
+            const tbody = document.getElementById('bodyRegistros');
+            tbody.innerHTML = '';
+            
+            registros.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            
+            registros.forEach((registro, index) => {
+                // Formatear fecha correctamente
+                let fechaFormateada = '-';
+                try {
+                    const fecha = new Date(registro.fecha + 'T00:00:00');
+                    if (!isNaN(fecha.getTime())) {
+                        fechaFormateada = fecha.toLocaleDateString('es-ES');
+                    } else {
+                        fechaFormateada = registro.fecha;
+                    }
+                } catch (e) {
+                    fechaFormateada = registro.fecha;
+                }
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${fechaFormateada}</td>
+                    <td>${registro.trabajadorNombre}</td>
+                    <td>${registro.trabajadorCedula}</td>
+                    <td>${registro.frente}</td>
+                    <td>${registro.horasDirecta.toFixed(2)}</td>
+                    <td>${registro.horasIndirecta.toFixed(2)}</td>
+                    <td><strong>${(registro.horasDirecta + registro.horasIndirecta).toFixed(2)}</strong></td>
+                    <td><button class="delete-btn" onclick="eliminarRegistro('${registro.id}')">Eliminar</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        async function eliminarRegistro(id) {
+            if (!confirm('¿Está seguro de eliminar este registro?')) {
+                return;
+            }
+            
+            console.log('Intentando eliminar registro con ID:', id);
+            
+            // Buscar el registro en el array local
+            const registro = registros.find(r => r.id == id);
+            if (!registro) {
+                alert('❌ Registro no encontrado en memoria local');
+                return;
+            }
+            
+            console.log('Registro encontrado:', registro);
+            
+            // Mostrar loading
+            document.getElementById('loadingRegistro').classList.add('active');
+            
+            try {
+                const response = await fetch(webAppUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'deleteRegistro',
+                        id: id,
+                        fecha: registro.fecha,
+                        cedula: registro.trabajadorCedula,
+                        frente: registro.frente
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result);
+                
+                if (result.success) {
+                    // Eliminar del array local
+                    registros = registros.filter(r => r.id != id);
+                    
+                    console.log('Registro eliminado exitosamente');
+                    
+                    // Actualizar solo la tabla
+                    actualizarTabla();
+                    
+                    // Actualizar estadísticas en segundo plano
+                    setTimeout(() => actualizarEstadisticas(), 100);
+                    
+                    setSyncStatus('synced');
+                    alert('✓ Registro eliminado exitosamente');
+                } else {
+                    throw new Error(result.error || 'El servidor no confirmó la eliminación');
+                }
+                
+            } catch (error) {
+                setSyncStatus('error');
+                alert('❌ Error al eliminar:\n' + error.message);
+                console.error('Error detallado:', error);
+            } finally {
+                document.getElementById('loadingRegistro').classList.remove('active');
+            }
+        }
+        
+        function actualizarEstadisticas() {
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            
+            console.log('=== ACTUALIZANDO ESTADÍSTICAS ===');
+            console.log('Período:', fechaInicio, 'hasta', fechaFin);
+            console.log('Total registros:', registros.length);
+            
+            // Filtrar registros del período
+            const registrosPeriodo = registros.filter(r => {
+                console.log('Comparando:', r.fecha, '>=', fechaInicio, '&&', r.fecha, '<=', fechaFin);
+                return r.fecha >= fechaInicio && r.fecha <= fechaFin;
+            });
+            
+            console.log('Registros en período:', registrosPeriodo.length);
+            console.log('Registros del período:', registrosPeriodo);
+            
+            const estadisticas = {};
+            
+            // Primero procesar TODOS los registros para acumulado
+            registros.forEach(r => {
+                if (!estadisticas[r.frente]) {
+                    estadisticas[r.frente] = {
+                        personalDirectaPeriodo: new Set(),
+                        personalIndirectaPeriodo: new Set(),
+                        horasDirectaPeriodo: 0,
+                        horasIndirectaPeriodo: 0,
+                        horasDirectaAcumulado: 0,
+                        horasIndirectaAcumulado: 0
+                    };
+                }
+                estadisticas[r.frente].horasDirectaAcumulado += r.horasDirecta;
+                estadisticas[r.frente].horasIndirectaAcumulado += r.horasIndirecta;
+            });
+            
+            // Ahora procesar solo el PERÍODO para personal y horas del período
+            registrosPeriodo.forEach(r => {
+                if (!estadisticas[r.frente]) {
+                    estadisticas[r.frente] = {
+                        personalDirectaPeriodo: new Set(),
+                        personalIndirectaPeriodo: new Set(),
+                        horasDirectaPeriodo: 0,
+                        horasIndirectaPeriodo: 0,
+                        horasDirectaAcumulado: 0,
+                        horasIndirectaAcumulado: 0
+                    };
+                }
+                
+                // Contar trabajador en directa si tiene horas directas
+                if (r.horasDirecta > 0) {
+                    console.log('Agregando a directa período:', r.trabajadorCedula, 'en frente', r.frente, 'con', r.horasDirecta, 'horas');
+                    estadisticas[r.frente].personalDirectaPeriodo.add(r.trabajadorCedula);
+                }
+                // Contar trabajador en indirecta si tiene horas indirectas
+                if (r.horasIndirecta > 0) {
+                    console.log('Agregando a indirecta período:', r.trabajadorCedula, 'en frente', r.frente, 'con', r.horasIndirecta, 'horas');
+                    estadisticas[r.frente].personalIndirectaPeriodo.add(r.trabajadorCedula);
+                }
+                
+                estadisticas[r.frente].horasDirectaPeriodo += r.horasDirecta;
+                estadisticas[r.frente].horasIndirectaPeriodo += r.horasIndirecta;
+            });
+            
+            console.log('Estadísticas calculadas:', estadisticas);
+            
+            // Convertir Sets a arrays para ver mejor en consola
+            Object.keys(estadisticas).forEach(frente => {
+                console.log(`Frente ${frente}:`);
+                console.log('  Personal directa período:', Array.from(estadisticas[frente].personalDirectaPeriodo));
+                console.log('  Personal indirecta período:', Array.from(estadisticas[frente].personalIndirectaPeriodo));
+                console.log('  Cantidad directa:', estadisticas[frente].personalDirectaPeriodo.size);
+                console.log('  Cantidad indirecta:', estadisticas[frente].personalIndirectaPeriodo.size);
+                console.log('  Horas directa período:', estadisticas[frente].horasDirectaPeriodo);
+                console.log('  Horas indirecta período:', estadisticas[frente].horasIndirectaPeriodo);
+                console.log('  Horas directa acumulado:', estadisticas[frente].horasDirectaAcumulado);
+                console.log('  Horas indirecta acumulado:', estadisticas[frente].horasIndirectaAcumulado);
+            });
+            
+            const tbody = document.getElementById('statsBody');
+            tbody.innerHTML = '';
+            
+            let totalPersonalDirecta = 0;
+            let totalPersonalIndirecta = 0;
+            let totalHorasDirectaPeriodo = 0;
+            let totalHorasIndirectaPeriodo = 0;
+            let totalHorasDirectaAcumulado = 0;
+            let totalHorasIndirectaAcumulado = 0;
+            
+            // Mostrar cada frente
+            Object.keys(estadisticas).sort().forEach(frente => {
+                const stats = estadisticas[frente];
+                const cantDirecta = stats.personalDirectaPeriodo.size;
+                const cantIndirecta = stats.personalIndirectaPeriodo.size;
+                
+                totalPersonalDirecta += cantDirecta;
+                totalPersonalIndirecta += cantIndirecta;
+                totalHorasDirectaPeriodo += stats.horasDirectaPeriodo;
+                totalHorasIndirectaPeriodo += stats.horasIndirectaPeriodo;
+                totalHorasDirectaAcumulado += stats.horasDirectaAcumulado;
+                totalHorasIndirectaAcumulado += stats.horasIndirectaAcumulado;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="frente-col">${frente}</td>
+                    <td>${cantDirecta}</td>
+                    <td>${cantIndirecta}</td>
+                    <td>${stats.horasDirectaPeriodo.toFixed(2)}</td>
+                    <td>${stats.horasIndirectaPeriodo.toFixed(2)}</td>
+                    <td>${stats.horasDirectaAcumulado.toFixed(2)}</td>
+                    <td>${stats.horasIndirectaAcumulado.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            const subtotalRow = document.createElement('tr');
+            subtotalRow.className = 'subtotal-row';
+            subtotalRow.innerHTML = `
+                <td class="frente-col">Subtotal</td>
+                <td>${totalPersonalDirecta}</td>
+                <td>${totalPersonalIndirecta}</td>
+                <td>${totalHorasDirectaPeriodo.toFixed(2)}</td>
+                <td>${totalHorasIndirectaPeriodo.toFixed(2)}</td>
+                <td>${totalHorasDirectaAcumulado.toFixed(2)}</td>
+                <td>${totalHorasIndirectaAcumulado.toFixed(2)}</td>
+            `;
+            tbody.appendChild(subtotalRow);
+            
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'total-row';
+            totalRow.innerHTML = `
+                <td class="frente-col">Total</td>
+                <td colspan="2">${totalPersonalDirecta + totalPersonalIndirecta}</td>
+                <td colspan="2">${(totalHorasDirectaPeriodo + totalHorasIndirectaPeriodo).toFixed(2)}</td>
+                <td colspan="2">${(totalHorasDirectaAcumulado + totalHorasIndirectaAcumulado).toFixed(2)}</td>
+            `;
+            tbody.appendChild(totalRow);
+            
+            console.log('=== TOTALES ===');
+            console.log('Personal directa período:', totalPersonalDirecta);
+            console.log('Personal indirecta período:', totalPersonalIndirecta);
+            console.log('Horas directa período:', totalHorasDirectaPeriodo);
+            console.log('Horas indirecta período:', totalHorasIndirectaPeriodo);
+        }
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'estadisticas') {
+                actualizarEstadisticas();
+            }
+        }
+
+        function crearPlantillaLocal() {
+            const instrucciones = `
+INSTRUCCIONES PARA CREAR LA PLANTILLA EN GOOGLE SHEETS:
+
+1. Crea una nueva hoja de cálculo en Google Sheets
+2. Nómbrala: "Control Horas Hombre"
+3. Crea DOS hojas dentro del archivo:
+   
+   Hoja 1: "Trabajadores"
+   Encabezados en la fila 1:
+   Cédula | Nombre Completo | Cargo | Tipo de Cargo | Fecha de Ingreso | Fecha de Retiro
+   
+   Hoja 2: "Registros"
+   Encabezados en la fila 1:
+   Fecha | Trabajador | Cédula | Frente | Horas Directa | Horas Indirecta
+
+4. Sigue las instrucciones en la pestaña Configuración para crear el Apps Script
+
+¿Necesitas el código del Apps Script de nuevo?
+            `;
+            
+            alert(instrucciones);
+        }
+
+        window.onclick = function(event) {
+            if (event.target.id === 'modalTrabajador') {
+                cerrarModalTrabajador();
+            }
+        }
+
+        function mostrarRegistroSimple() {
+            document.getElementById('formSimple').style.display = 'block';
+            document.getElementById('formMasivo').style.display = 'none';
+        }
+
+        function mostrarRegistroMasivo() {
+            document.getElementById('formSimple').style.display = 'none';
+            document.getElementById('formMasivo').style.display = 'block';
+            cargarListaTrabajadoresMasivo();
+        }
+
+        function cargarListaTrabajadoresMasivo() {
+            const lista = document.getElementById('listaTrabajadoresMasivo');
+            lista.innerHTML = '';
+            
+            trabajadores
+                .filter(t => !t.fechaRetiro)
+                .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))
+                .forEach(trabajador => {
+                    const div = document.createElement('div');
+                    div.className = 'trabajador-checkbox';
+                    div.innerHTML = `
+                        <input type="checkbox" id="trab_${trabajador.cedula}" value="${trabajador.cedula}" onchange="actualizarContador()">
+                        <label for="trab_${trabajador.cedula}">
+                            <strong>${trabajador.nombreCompleto}</strong>
+                            <div class="trabajador-info">
+                                ${trabajador.cedula} - ${trabajador.cargo} (${trabajador.tipoCargo})
+                            </div>
+                        </label>
+                    `;
+                    lista.appendChild(div);
+                });
+            
+            actualizarContador();
+        }
+
+        function filtrarTrabajadoresMasivo() {
+            const busqueda = document.getElementById('buscarTrabajadorMasivo').value.toLowerCase();
+            const checkboxes = document.querySelectorAll('.trabajador-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                const texto = checkbox.textContent.toLowerCase();
+                checkbox.style.display = texto.includes(busqueda) ? 'flex' : 'none';
+            });
+        }
+
+        function seleccionarTodosTrabajadores() {
+            const checkboxes = document.querySelectorAll('#listaTrabajadoresMasivo input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                if (cb.parentElement.style.display !== 'none') {
+                    cb.checked = true;
+                }
+            });
+            actualizarContador();
+        }
+
+        function deseleccionarTodosTrabajadores() {
+            const checkboxes = document.querySelectorAll('#listaTrabajadoresMasivo input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            actualizarContador();
+        }
+
+        function actualizarContador() {
+            const seleccionados = document.querySelectorAll('#listaTrabajadoresMasivo input[type="checkbox"]:checked').length;
+            document.getElementById('contadorSeleccionados').textContent = `${seleccionados} trabajador(es) seleccionado(s)`;
+        }
+
+        function importarRegistrosExcel() {
+            document.getElementById('fileImportRegistros').click();
+        }
+
+        async function procesarArchivoRegistros(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    console.log('Hojas disponibles:', workbook.SheetNames);
+                    
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    console.log('Datos del Excel:', jsonData);
+                    console.log('Primera fila:', jsonData[0]);
+                    
+                    if (jsonData.length === 0) {
+                        alert('El archivo Excel está vacío o no tiene datos después de los encabezados.');
+                        return;
+                    }
+                    
+                    // Detectar nombres de columnas (pueden variar)
+                    const primeraFila = jsonData[0];
+                    console.log('Columnas detectadas:', Object.keys(primeraFila));
+                    
+                    document.getElementById('loadingRegistro').classList.add('active');
+                    let importados = 0;
+                    let errores = 0;
+                    let erroresDetalle = [];
+                    
+                    for (let i = 0; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        console.log(`Procesando fila ${i + 1}:`, row);
+                        
+                        // Buscar columnas de forma flexible (con o sin tildes, mayúsculas, etc)
+                        const cedula = row['Cedula'] || row['Cédula'] || row['cedula'] || row['CEDULA'];
+                        const fecha = row['Fecha'] || row['fecha'] || row['FECHA'];
+                        const frente = row['Frente'] || row['frente'] || row['FRENTE'];
+                        const horasDirecta = row['Horas Directa'] || row['HorasDirecta'] || row['Directa'] || row['HORAS DIRECTA'] || 0;
+                        const horasIndirecta = row['Horas Indirecta'] || row['HorasIndirecta'] || row['Indirecta'] || row['HORAS INDIRECTA'] || 0;
+                        
+                        if (!cedula) {
+                            erroresDetalle.push(`Fila ${i + 2}: Falta cédula`);
+                            errores++;
+                            continue;
+                        }
+                        
+                        if (!fecha) {
+                            erroresDetalle.push(`Fila ${i + 2}: Falta fecha`);
+                            errores++;
+                            continue;
+                        }
+                        
+                        if (!frente) {
+                            erroresDetalle.push(`Fila ${i + 2}: Falta frente`);
+                            errores++;
+                            continue;
+                        }
+                        
+                        const trabajador = trabajadores.find(t => t.cedula === String(cedula));
+                        if (!trabajador) {
+                            erroresDetalle.push(`Fila ${i + 2}: Trabajador con cédula ${cedula} no encontrado`);
+                            errores++;
+                            continue;
+                        }
+                        
+                        // Convertir fecha
+                        let fechaFormateada;
+                        if (typeof fecha === 'number') {
+                            fechaFormateada = convertirFechaSerial(fecha);
+                        } else if (typeof fecha === 'string') {
+                            if (fecha.includes('/')) {
+                                const partes = fecha.split('/');
+                                if (partes.length === 3) {
+                                    // Asumiendo DD/MM/YYYY
+                                    fechaFormateada = `${partes[2]}-${partes[1].padStart(2,'0')}-${partes[0].padStart(2,'0')}`;
+                                }
+                            } else if (fecha.includes('-')) {
+                                fechaFormateada = fecha.split('T')[0]; // Por si viene con hora
+                            } else {
+                                fechaFormateada = fecha;
+                            }
+                        } else {
+                            fechaFormateada = fecha;
+                        }
+                        
+                        const registro = {
+                            fecha: fechaFormateada,
+                            trabajadorNombre: trabajador.nombreCompleto,
+                            trabajadorCedula: trabajador.cedula,
+                            frente: String(frente).toUpperCase(),
+                            horasDirecta: parseFloat(horasDirecta) || 0,
+                            horasIndirecta: parseFloat(horasIndirecta) || 0
+                        };
+                        
+                        console.log('Registro a guardar:', registro);
+                        
+                        try {
+                            await fetch(webAppUrl, {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    action: 'addRegistro',
+                                    ...registro
+                                })
+                            });
+                            
+                            registros.push(registro);
+                            importados++;
+                        } catch (error) {
+                            console.error('Error al guardar fila:', i + 2, error);
+                            erroresDetalle.push(`Fila ${i + 2}: Error al guardar - ${error.message}`);
+                            errores++;
+                        }
+                    }
+                    
+                    actualizarTabla();
+                    actualizarEstadisticas();
+                    setSyncStatus('synced');
+                    document.getElementById('loadingRegistro').classList.remove('active');
+                    
+                    let mensaje = `✓ Importación completada:\n- Importados: ${importados}\n- Errores: ${errores}`;
+                    if (erroresDetalle.length > 0 && erroresDetalle.length <= 10) {
+                        mensaje += '\n\nDetalles de errores:\n' + erroresDetalle.join('\n');
+                    } else if (erroresDetalle.length > 10) {
+                        mensaje += '\n\nPrimeros 10 errores:\n' + erroresDetalle.slice(0, 10).join('\n');
+                        console.log('Todos los errores:', erroresDetalle);
+                    }
+                    
+                    alert(mensaje);
+                } catch (error) {
+                    document.getElementById('loadingRegistro').classList.remove('active');
+                    alert('Error al procesar el archivo:\n' + error.message + '\n\nVerifica que sea un archivo Excel válido (.xlsx o .xls)');
+                    console.error('Error completo:', error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            e.target.value = '';
+        }
+    </script>
+</body>
+</html>
+                
