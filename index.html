@@ -937,7 +937,14 @@ function doPost(e) {
             try {
                 // Probar conexión
                 const response = await fetch(webAppUrl + '?action=getTrabajadores');
+                
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor: ' + response.status);
+                }
+                
                 const data = await response.json();
+                
+                console.log('Respuesta de prueba:', data);
                 
                 // Guardar configuración
                 localStorage.setItem('webAppUrl', webAppUrl);
@@ -953,17 +960,23 @@ function doPost(e) {
                 document.getElementById('tabEstadisticas').disabled = false;
                 document.getElementById('tabDatos').disabled = false;
                 
+                document.getElementById('loadingConfig').classList.remove('active');
+                
                 // Cargar datos
                 await sincronizar();
                 
                 alert('✅ Configuración guardada exitosamente');
-                showTab('registro');
+                
+                // Cambiar a pestaña de registro
+                document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById('registro').classList.add('active');
+                document.querySelector('[onclick="showTab(\'registro\')"]').classList.add('active');
                 
             } catch (error) {
-                alert('❌ Error al conectar con Google Sheets. Verifica la URL y que el script esté publicado correctamente.');
-                console.error(error);
-            } finally {
                 document.getElementById('loadingConfig').classList.remove('active');
+                alert('❌ Error al conectar con Google Sheets:\n' + error.message + '\n\nVerifica:\n- La URL es correcta\n- El script está publicado\n- Termina en /exec');
+                console.error('Error de conexión:', error);
             }
         });
         
@@ -1002,16 +1015,27 @@ function doPost(e) {
                 horasIndirecta: horasIndirecta
             };
             
+            console.log('Enviando registro simple:', registro);
+            
             document.getElementById('loadingRegistro').classList.add('active');
             
             try {
-                await fetch(webAppUrl, {
+                const response = await fetch(webAppUrl, {
                     method: 'POST',
                     body: JSON.stringify({
                         action: 'addRegistro',
-                        ...registro
+                        id: registro.id,
+                        fecha: registro.fecha,
+                        trabajadorNombre: registro.trabajadorNombre,
+                        trabajadorCedula: registro.trabajadorCedula,
+                        frente: registro.frente,
+                        horasDirecta: registro.horasDirecta,
+                        horasIndirecta: registro.horasIndirecta
                     })
                 });
+                
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result);
                 
                 registros.push(registro);
                 actualizarTabla();
