@@ -1322,8 +1322,10 @@ function doPost(e) {
                 console.log('Datos RAW de registros:', dataReg);
                 
                 registros = dataReg.map(row => {
+                    // Nueva estructura: A=ID, B=Fecha, C=Trabajador, D=Cédula, E=Frente, F=HorasDirecta, G=HorasIndirecta
+                    
                     // Normalizar fecha del registro
-                    let fecha = row[0];
+                    let fecha = row[1]; // Columna B
                     if (typeof fecha === 'string' && fecha.includes('T')) {
                         fecha = fecha.split('T')[0];
                     } else if (typeof fecha === 'number') {
@@ -1333,13 +1335,13 @@ function doPost(e) {
                     }
                     
                     return {
-                        id: row[6] || (Date.now() + Math.random()), // ID único, columna 7 en Sheets
+                        id: row[0] || (Date.now() + Math.random()), // Columna A
                         fecha: fecha,
-                        trabajadorNombre: row[1],
-                        trabajadorCedula: String(row[2]),
-                        frente: row[3],
-                        horasDirecta: parseFloat(row[4]) || 0,
-                        horasIndirecta: parseFloat(row[5]) || 0
+                        trabajadorNombre: row[2], // Columna C
+                        trabajadorCedula: String(row[3]), // Columna D
+                        frente: row[4], // Columna E
+                        horasDirecta: parseFloat(row[5]) || 0, // Columna F
+                        horasIndirecta: parseFloat(row[6]) || 0 // Columna G
                     };
                 });
                 
