@@ -1641,21 +1641,26 @@ function doPost(e) {
             
             const estadisticas = {};
             
-            // Primero procesar TODOS los registros para acumulado
-            registros.forEach(r => {
-                if (!estadisticas[r.frente]) {
-                    estadisticas[r.frente] = {
-                        personalDirectaPeriodo: new Set(),
-                        personalIndirectaPeriodo: new Set(),
-                        horasDirectaPeriodo: 0,
-                        horasIndirectaPeriodo: 0,
-                        horasDirectaAcumulado: 0,
-                        horasIndirectaAcumulado: 0
-                    };
-                }
-                estadisticas[r.frente].horasDirectaAcumulado += r.horasDirecta;
-                estadisticas[r.frente].horasIndirectaAcumulado += r.horasIndirecta;
-            });
+           // Acumulado solo dentro del rango seleccionado
+registros.forEach(r => {
+    if (r.fecha >= fechaInicio && r.fecha <= fechaFin) {
+
+        if (!estadisticas[r.frente]) {
+            estadisticas[r.frente] = {
+                personalDirectaPeriodo: new Set(),
+                personalIndirectaPeriodo: new Set(),
+                horasDirectaPeriodo: 0,
+                horasIndirectaPeriodo: 0,
+                horasDirectaAcumulado: 0,
+                horasIndirectaAcumulado: 0
+            };
+        }
+
+        estadisticas[r.frente].horasDirectaAcumulado += r.horasDirecta;
+        estadisticas[r.frente].horasIndirectaAcumulado += r.horasIndirecta;
+    }
+});
+
             
             // Ahora procesar solo el PERÍODO para personal y horas del período
             registrosPeriodo.forEach(r => {
