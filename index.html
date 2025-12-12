@@ -50,21 +50,22 @@
         /* ESTILOS TABLA ESTADISTICAS */
         .stats-table .frente-col { text-align: left; font-weight: 600; background: #f8f9fa; }
         
-        /* TOTALES */
+        /* SUBTOTAL (Anterior Total Columna) - Texto Negro */
         .stats-table .total-row { 
-            background: #dcdde1; 
-            color: #2f3640; 
+            background: #ecf0f1; 
+            color: #000000; 
             font-weight: 700; 
             font-size: 14px; 
-            border-top: 2px solid #7f8fa6;
+            border-top: 2px solid #95a5a6;
         }
 
-        /* GRAN TOTAL UNIFICADO */
+        /* TOTAL (Anterior Gran Total) - Texto Negro */
         .stats-table .grand-total-row {
-            background: #2c3e50;
-            color: #ffffff;
+            background: #bdc3c7; /* Gris un poco más oscuro para diferenciar */
+            color: #000000;
             font-weight: 800;
             font-size: 16px;
+            border-top: 2px solid #2c3e50;
         }
 
         .periodo-selector { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; flex-wrap: wrap; }
@@ -459,7 +460,6 @@
             mostrarRegistroSimple();
         });
 
-        // FUNCIONES AUXILIARES REGISTRO MASIVO
         function mostrarRegistroSimple() {
             document.getElementById('formSimple').style.display = 'block';
             document.getElementById('formMasivo').style.display = 'none';
@@ -583,11 +583,11 @@
                 tbody.appendChild(tr);
             });
 
-            // FILA TOTALES (SUBTOTAL COLUMNAS)
+            // SUBTOTAL (FILA CLARA)
             const trTotal = document.createElement('tr');
             trTotal.className = 'total-row';
             trTotal.innerHTML = `
-                <td class="frente-col">TOTAL POR COLUMNA</td>
+                <td class="frente-col">SUBTOTAL</td>
                 <td>${tDirP}</td>
                 <td>${tIndirP}</td>
                 <td>${tHDirP.toFixed(2)}</td>
@@ -597,17 +597,16 @@
             `;
             tbody.appendChild(trTotal);
 
-            // NUEVA FILA: GRAN TOTAL UNIFICADO (PUNTO 3)
+            // TOTAL (FILA OSCURA UNIFICADA)
             const trGranTotal = document.createElement('tr');
             trGranTotal.className = 'grand-total-row';
             trGranTotal.innerHTML = `
-                <td class="frente-col">GRAN TOTAL UNIFICADO (D+I)</td>
+                <td class="frente-col">TOTAL</td>
                 <td colspan="2">${tDirP + tIndirP}</td>
                 <td colspan="2">${(tHDirP + tHIndirP).toFixed(2)}</td>
                 <td colspan="2">${(tHDirAcum + tHIndirAcum).toFixed(2)}</td>
             `;
             tbody.appendChild(trGranTotal);
-
 
             // CARGOS
             const statsCargos = {};
@@ -840,9 +839,7 @@
                         if(!trab) { err++; continue; }
                         let fechaFmt = fec;
                         if(typeof fec === 'number') fechaFmt = normalizarFecha(fec);
-                        
                         if(existeRegistro(fechaFmt, String(ced))) { err++; continue; }
-
                         const reg = {
                             fecha: fechaFmt, trabajadorNombre: trab.nombreCompleto, trabajadorCedula: trab.cedula,
                             frente: String(fre).toUpperCase(),
