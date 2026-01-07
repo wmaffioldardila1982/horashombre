@@ -49,18 +49,21 @@
         
         /* ESTILOS TABLA ESTADISTICAS */
         .stats-table .frente-col { text-align: left; font-weight: 600; background: #f8f9fa; }
-        
-        /* SUBTOTAL Y TOTAL */
         .stats-table .total-row { background: #ecf0f1; color: #000000; font-weight: 700; font-size: 14px; border-top: 2px solid #95a5a6; }
         .stats-table .grand-total-row { background: #bdc3c7; color: #000000; font-weight: 800; font-size: 16px; border-top: 2px solid #2c3e50; }
 
         .periodo-selector { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; flex-wrap: wrap; }
         .search-box { position: relative; margin-bottom: 15px; }
         
-        /* ESTILOS SECCIÓN FILTRO */
+        /* ESTILOS SECCIÓN FILTRO MATRIZ */
         .filter-section { background: #e1f5fe; border: 1px solid #81d4fa; border-radius: 8px; padding: 20px; margin-top: 30px; }
-        .filter-controls { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px; }
-        .filter-controls .form-group { margin-bottom: 0; flex: 1; }
+        
+        /* ESTILOS ESPECÍFICOS PARA LA MATRIZ */
+        .matrix-table th { background-color: #0277bd; color: white; white-space: nowrap; }
+        .matrix-table th:first-child { position: sticky; left: 0; z-index: 10; background-color: #01579b; }
+        .matrix-table td:first-child { position: sticky; left: 0; background-color: #f1f8e9; font-weight: bold; text-align: left; }
+        .matrix-table td { min-width: 60px; }
+        .matrix-total-col { background-color: #e0e0e0; font-weight: bold; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow: auto; }
         .modal-content { background: white; margin: 50px auto; padding: 30px; border-radius: 10px; max-width: 600px; }
@@ -268,38 +271,21 @@
                 </div>
 
                 <div class="filter-section">
-                    <h3 style="color: #0277bd; margin-bottom: 15px;">🔎 Reporte: Cantidad de Personal por Frente y Cargo</h3>
-                    <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Muestra cuántas personas de cada cargo trabajaron en cada frente durante el período seleccionado.</p>
+                    <h3 style="color: #0277bd; margin-bottom: 15px;">🔎 Matriz de Personal (Cargo vs Frente)</h3>
+                    <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Vista completa de la distribución de personal por frente en el período seleccionado.</p>
                     
-                    <div class="filter-controls">
-                        <div class="form-group">
-                            <label for="filtroFrente">Seleccionar Frente:</label>
-                            <select id="filtroFrente">
-                                <option value="TODOS">-- Todos los Frentes --</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="filtroCargo">Seleccionar Cargo:</label>
-                            <select id="filtroCargo">
-                                <option value="TODOS">-- Todos los Cargos --</option>
-                            </select>
-                        </div>
-                        <button onclick="consultarFiltroDetallado()" class="btn-info" style="margin-bottom: 0;">🔍 Consultar</button>
-                    </div>
+                    <button onclick="generarMatrizPersonal()" class="btn-info">🔄 Generar Matriz del Período</button>
 
-                    <div style="overflow-x: auto;">
-                        <table class="stats-table" id="tablaFiltroDetallado" style="display: none;">
-                            <thead>
-                                <tr>
-                                    <th style="text-align:left; padding-left:20px;">FRENTE</th>
-                                    <th style="text-align:left;">CARGO</th>
-                                    <th>CANTIDAD DE PERSONAS</th>
-                                </tr>
-                            </thead>
-                            <tbody id="bodyFiltroDetallado">
-                            </tbody>
+                    <div style="overflow-x: auto; margin-top: 15px;">
+                        <table class="stats-table matrix-table" id="tablaMatriz" style="display: none;">
+                            <thead id="headerMatriz">
+                                </thead>
+                            <tbody id="bodyMatriz">
+                                </tbody>
+                            <tfoot id="footerMatriz">
+                                </tfoot>
                         </table>
-                        <p id="mensajeSinResultados" style="display:none; text-align: center; color: #666; padding: 20px;">No se encontraron registros.</p>
+                        <p id="mensajeMatrizVacia" style="display:none; text-align: center; color: #666; padding: 20px;">No hay datos para mostrar en este período.</p>
                     </div>
                 </div>
 
@@ -561,8 +547,9 @@
             const fechaFin = document.getElementById('fechaFin').value;
             const registrosPeriodo = registros.filter(r => r.fecha >= fechaInicio && r.fecha <= fechaFin);
             
-            actualizarSelectsFiltro(registrosPeriodo);
-
+            // Generar la matriz automáticamente si se desea, o esperar click. 
+            // Para mantener performance, dejamos el click, pero actualizamos la data general.
+            
             const stats = {};
             registros.forEach(r => {
                 if (r.fecha <= fechaFin) {
@@ -663,108 +650,96 @@
             tbodyCargos.appendChild(trTotalCargos);
         }
 
-        // --- NUEVA LÓGICA REPORTE AGRUPADO ---
+        // --- NUEVA LÓGICA: MATRIZ DE PERSONAL (PIVOT) ---
         
-        function actualizarSelectsFiltro(registrosPeriodo) {
-            const selectFrente = document.getElementById('filtroFrente');
-            const selectCargo = document.getElementById('filtroCargo');
-            const frenteActual = selectFrente.value;
-            const cargoActual = selectCargo.value;
-
-            const frentes = new Set();
-            const cargos = new Set();
-
-            registrosPeriodo.forEach(r => {
-                frentes.add(r.frente);
-                const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
-                if(trab) cargos.add(trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim());
-            });
-
-            selectFrente.innerHTML = '<option value="TODOS">-- Todos los Frentes --</option>';
-            [...frentes].sort().forEach(f => {
-                const op = document.createElement('option');
-                op.value = f; op.text = f;
-                selectFrente.appendChild(op);
-            });
-            selectFrente.value = frenteActual; 
-
-            selectCargo.innerHTML = '<option value="TODOS">-- Todos los Cargos --</option>';
-            [...cargos].sort().forEach(c => {
-                const op = document.createElement('option');
-                op.value = c; op.text = c;
-                selectCargo.appendChild(op);
-            });
-            selectCargo.value = cargoActual; 
-        }
-
-        function consultarFiltroDetallado() {
+        function generarMatrizPersonal() {
             const fechaInicio = document.getElementById('fechaInicio').value;
             const fechaFin = document.getElementById('fechaFin').value;
-            const frenteSel = document.getElementById('filtroFrente').value;
-            const cargoSel = document.getElementById('filtroCargo').value;
-
-            const registrosFiltrados = registros.filter(r => {
-                if (r.fecha < fechaInicio || r.fecha > fechaFin) return false;
-                if (frenteSel !== 'TODOS' && r.frente !== frenteSel) return false;
-                
-                const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
-                const cargoTrab = trab ? trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim() : 'SIN DEFINIR';
-                
-                if (cargoSel !== 'TODOS' && cargoTrab !== cargoSel) return false;
-                return true;
-            });
-
-            // AGRUPAR POR FRENTE + CARGO
-            const agrupacion = {};
-
-            registrosFiltrados.forEach(r => {
-                const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
-                const cargo = trab ? trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim() : 'SIN DEFINIR';
-                const frente = r.frente;
-                const clave = `${frente}|${cargo}`;
-                
-                if (!agrupacion[clave]) {
-                    agrupacion[clave] = { frente: frente, cargo: cargo, personas: new Set() };
-                }
-                agrupacion[clave].personas.add(r.trabajadorCedula);
-            });
-
-            // CONVERTIR A LISTA
-            const lista = Object.values(agrupacion).map(item => ({
-                frente: item.frente,
-                cargo: item.cargo,
-                cantidad: item.personas.size
-            })).sort((a, b) => {
-                if (a.frente < b.frente) return -1;
-                if (a.frente > b.frente) return 1;
-                if (a.cargo < b.cargo) return -1;
-                if (a.cargo > b.cargo) return 1;
-                return 0;
-            });
-
-            // RENDERIZAR
-            const tbody = document.getElementById('bodyFiltroDetallado');
-            const tabla = document.getElementById('tablaFiltroDetallado');
-            const mensaje = document.getElementById('mensajeSinResultados');
-            tbody.innerHTML = '';
-
-            if (lista.length === 0) {
+            const registrosPeriodo = registros.filter(r => r.fecha >= fechaInicio && r.fecha <= fechaFin);
+            
+            const tabla = document.getElementById('tablaMatriz');
+            const mensaje = document.getElementById('mensajeMatrizVacia');
+            const thead = document.getElementById('headerMatriz');
+            const tbody = document.getElementById('bodyMatriz');
+            const tfoot = document.getElementById('footerMatriz');
+            
+            if (registrosPeriodo.length === 0) {
                 tabla.style.display = 'none';
                 mensaje.style.display = 'block';
-            } else {
-                tabla.style.display = 'table';
-                mensaje.style.display = 'none';
-                
-                lista.forEach(item => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td style="text-align:left; padding-left:20px;">${item.frente}</td>
-                        <td style="text-align:left;">${item.cargo}</td>
-                        <td style="font-weight:bold;">${item.cantidad}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                return;
             }
+
+            // 1. Obtener Columnas (Frentes Únicos) y Filas (Cargos Únicos)
+            const frentesSet = new Set();
+            const cargosSet = new Set();
+            
+            // Estructura de datos: data[cargo][frente] = Set(cedulas)
+            const data = {};
+
+            registrosPeriodo.forEach(r => {
+                const frente = r.frente;
+                const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
+                const cargo = trab ? trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim() : 'SIN DEFINIR';
+                
+                frentesSet.add(frente);
+                cargosSet.add(cargo);
+
+                if(!data[cargo]) data[cargo] = {};
+                if(!data[cargo][frente]) data[cargo][frente] = new Set();
+                data[cargo][frente].add(r.trabajadorCedula);
+            });
+
+            const frentesOrdenados = [...frentesSet].sort();
+            const cargosOrdenados = [...cargosSet].sort();
+
+            // 2. Construir Encabezado
+            thead.innerHTML = '';
+            let trHead = '<tr><th style="min-width: 200px;">CARGO</th>';
+            frentesOrdenados.forEach(f => {
+                trHead += `<th>${f}</th>`;
+            });
+            trHead += '<th class="matrix-total-col">TOTAL</th></tr>';
+            thead.innerHTML = trHead;
+
+            // 3. Construir Cuerpo
+            tbody.innerHTML = '';
+            // Totales por columna
+            const totalesColumna = {};
+            frentesOrdenados.forEach(f => totalesColumna[f] = 0);
+            let granTotal = 0;
+
+            cargosOrdenados.forEach(cargo => {
+                let tr = `<tr><td>${cargo}</td>`;
+                let totalFila = 0;
+
+                frentesOrdenados.forEach(frente => {
+                    const cantidad = data[cargo][frente] ? data[cargo][frente].size : 0;
+                    const display = cantidad > 0 ? cantidad : '-';
+                    const style = cantidad > 0 ? 'font-weight:bold; color:#333;' : 'color:#ccc;';
+                    
+                    tr += `<td style="${style}">${display}</td>`;
+                    
+                    // Sumar
+                    totalFila += cantidad;
+                    totalesColumna[frente] += cantidad;
+                });
+                
+                granTotal += totalFila;
+                tr += `<td class="matrix-total-col">${totalFila}</td></tr>`;
+                tbody.innerHTML += tr;
+            });
+
+            // 4. Construir Footer (Totales)
+            tfoot.innerHTML = '';
+            let trFoot = `<tr class="total-row"><td>TOTAL</td>`;
+            frentesOrdenados.forEach(f => {
+                trFoot += `<td>${totalesColumna[f]}</td>`;
+            });
+            trFoot += `<td class="matrix-total-col">${granTotal}</td></tr>`;
+            tfoot.innerHTML = trFoot;
+
+            tabla.style.display = 'block';
+            mensaje.style.display = 'none';
         }
 
         function initStats(stats, frente) {
