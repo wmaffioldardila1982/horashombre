@@ -50,35 +50,17 @@
         /* ESTILOS TABLA ESTADISTICAS */
         .stats-table .frente-col { text-align: left; font-weight: 600; background: #f8f9fa; }
         
-        .stats-table .total-row { 
-            background: #ecf0f1; color: #000000; font-weight: 700; font-size: 14px; border-top: 2px solid #95a5a6;
-        }
-
-        .stats-table .grand-total-row {
-            background: #bdc3c7; color: #000000; font-weight: 800; font-size: 16px; border-top: 2px solid #2c3e50;
-        }
+        /* SUBTOTAL Y TOTAL */
+        .stats-table .total-row { background: #ecf0f1; color: #000000; font-weight: 700; font-size: 14px; border-top: 2px solid #95a5a6; }
+        .stats-table .grand-total-row { background: #bdc3c7; color: #000000; font-weight: 800; font-size: 16px; border-top: 2px solid #2c3e50; }
 
         .periodo-selector { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; flex-wrap: wrap; }
         .search-box { position: relative; margin-bottom: 15px; }
         
-        /* NUEVOS ESTILOS PARA LA SECCIÓN DE FILTRO */
-        .filter-section {
-            background: #e1f5fe;
-            border: 1px solid #81d4fa;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 30px;
-        }
-        .filter-controls {
-            display: flex;
-            gap: 15px;
-            align-items: flex-end;
-            margin-bottom: 15px;
-        }
-        .filter-controls .form-group {
-            margin-bottom: 0;
-            flex: 1;
-        }
+        /* ESTILOS SECCIÓN FILTRO */
+        .filter-section { background: #e1f5fe; border: 1px solid #81d4fa; border-radius: 8px; padding: 20px; margin-top: 30px; }
+        .filter-controls { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px; }
+        .filter-controls .form-group { margin-bottom: 0; flex: 1; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow: auto; }
         .modal-content { background: white; margin: 50px auto; padding: 30px; border-radius: 10px; max-width: 600px; }
@@ -286,8 +268,8 @@
                 </div>
 
                 <div class="filter-section">
-                    <h3 style="color: #0277bd; margin-bottom: 15px;">🔎 Consulta Específica: Personal por Frente y Cargo</h3>
-                    <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Filtra a las personas que trabajaron en un frente específico con un cargo específico durante el período seleccionado arriba.</p>
+                    <h3 style="color: #0277bd; margin-bottom: 15px;">🔎 Reporte: Cantidad de Personal por Frente y Cargo</h3>
+                    <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Muestra cuántas personas de cada cargo trabajaron en cada frente durante el período seleccionado.</p>
                     
                     <div class="filter-controls">
                         <div class="form-group">
@@ -309,17 +291,15 @@
                         <table class="stats-table" id="tablaFiltroDetallado" style="display: none;">
                             <thead>
                                 <tr>
-                                    <th>Cédula</th>
-                                    <th>Nombre Completo</th>
-                                    <th>Frente(s)</th>
-                                    <th>Cargo</th>
-                                    <th>HH Período</th>
+                                    <th style="text-align:left; padding-left:20px;">FRENTE</th>
+                                    <th style="text-align:left;">CARGO</th>
+                                    <th>CANTIDAD DE PERSONAS</th>
                                 </tr>
                             </thead>
                             <tbody id="bodyFiltroDetallado">
                             </tbody>
                         </table>
-                        <p id="mensajeSinResultados" style="display:none; text-align: center; color: #666; padding: 20px;">No se encontraron registros con estos criterios.</p>
+                        <p id="mensajeSinResultados" style="display:none; text-align: center; color: #666; padding: 20px;">No se encontraron registros.</p>
                     </div>
                 </div>
 
@@ -581,7 +561,6 @@
             const fechaFin = document.getElementById('fechaFin').value;
             const registrosPeriodo = registros.filter(r => r.fecha >= fechaInicio && r.fecha <= fechaFin);
             
-            // LLENAR SELECTS DEL FILTRO DETALLADO AUTOMÁTICAMENTE
             actualizarSelectsFiltro(registrosPeriodo);
 
             const stats = {};
@@ -684,7 +663,7 @@
             tbodyCargos.appendChild(trTotalCargos);
         }
 
-        // --- NUEVA LÓGICA DEL FILTRO DETALLADO ---
+        // --- NUEVA LÓGICA REPORTE AGRUPADO ---
         
         function actualizarSelectsFiltro(registrosPeriodo) {
             const selectFrente = document.getElementById('filtroFrente');
@@ -692,7 +671,6 @@
             const frenteActual = selectFrente.value;
             const cargoActual = selectCargo.value;
 
-            // Obtener frentes y cargos únicos disponibles en el periodo
             const frentes = new Set();
             const cargos = new Set();
 
@@ -702,23 +680,21 @@
                 if(trab) cargos.add(trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim());
             });
 
-            // Llenar Frentes
             selectFrente.innerHTML = '<option value="TODOS">-- Todos los Frentes --</option>';
             [...frentes].sort().forEach(f => {
                 const op = document.createElement('option');
                 op.value = f; op.text = f;
                 selectFrente.appendChild(op);
             });
-            selectFrente.value = frenteActual; // Mantener selección si existe
+            selectFrente.value = frenteActual; 
 
-            // Llenar Cargos
             selectCargo.innerHTML = '<option value="TODOS">-- Todos los Cargos --</option>';
             [...cargos].sort().forEach(c => {
                 const op = document.createElement('option');
                 op.value = c; op.text = c;
                 selectCargo.appendChild(op);
             });
-            selectCargo.value = cargoActual; // Mantener selección si existe
+            selectCargo.value = cargoActual; 
         }
 
         function consultarFiltroDetallado() {
@@ -727,7 +703,6 @@
             const frenteSel = document.getElementById('filtroFrente').value;
             const cargoSel = document.getElementById('filtroCargo').value;
 
-            // Filtrar registros
             const registrosFiltrados = registros.filter(r => {
                 if (r.fecha < fechaInicio || r.fecha > fechaFin) return false;
                 if (frenteSel !== 'TODOS' && r.frente !== frenteSel) return false;
@@ -736,35 +711,42 @@
                 const cargoTrab = trab ? trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim() : 'SIN DEFINIR';
                 
                 if (cargoSel !== 'TODOS' && cargoTrab !== cargoSel) return false;
-                
                 return true;
             });
 
-            // Agrupar por persona para el reporte
-            const reporte = {};
+            // AGRUPAR POR FRENTE + CARGO
+            const agrupacion = {};
+
             registrosFiltrados.forEach(r => {
-                const ced = r.trabajadorCedula;
-                if (!reporte[ced]) {
-                    const t = trabajadores.find(tr => tr.cedula === ced);
-                    reporte[ced] = {
-                        cedula: ced,
-                        nombre: t ? t.nombreCompleto : 'Desconocido',
-                        cargo: t ? t.cargo.toUpperCase() : '?',
-                        frentes: new Set(),
-                        hh: 0
-                    };
+                const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
+                const cargo = trab ? trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim() : 'SIN DEFINIR';
+                const frente = r.frente;
+                const clave = `${frente}|${cargo}`;
+                
+                if (!agrupacion[clave]) {
+                    agrupacion[clave] = { frente: frente, cargo: cargo, personas: new Set() };
                 }
-                reporte[ced].frentes.add(r.frente);
-                reporte[ced].hh += (r.horasDirecta + r.horasIndirecta);
+                agrupacion[clave].personas.add(r.trabajadorCedula);
             });
 
-            // Renderizar
+            // CONVERTIR A LISTA
+            const lista = Object.values(agrupacion).map(item => ({
+                frente: item.frente,
+                cargo: item.cargo,
+                cantidad: item.personas.size
+            })).sort((a, b) => {
+                if (a.frente < b.frente) return -1;
+                if (a.frente > b.frente) return 1;
+                if (a.cargo < b.cargo) return -1;
+                if (a.cargo > b.cargo) return 1;
+                return 0;
+            });
+
+            // RENDERIZAR
             const tbody = document.getElementById('bodyFiltroDetallado');
             const tabla = document.getElementById('tablaFiltroDetallado');
             const mensaje = document.getElementById('mensajeSinResultados');
             tbody.innerHTML = '';
-
-            const lista = Object.values(reporte).sort((a,b) => a.nombre.localeCompare(b.nombre));
 
             if (lista.length === 0) {
                 tabla.style.display = 'none';
@@ -776,26 +758,12 @@
                 lista.forEach(item => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${item.cedula}</td>
-                        <td style="text-align:left; padding-left:15px;">${item.nombre}</td>
-                        <td>${[...item.frentes].join(', ')}</td>
-                        <td>${item.cargo}</td>
-                        <td>${item.hh.toFixed(2)}</td>
+                        <td style="text-align:left; padding-left:20px;">${item.frente}</td>
+                        <td style="text-align:left;">${item.cargo}</td>
+                        <td style="font-weight:bold;">${item.cantidad}</td>
                     `;
                     tbody.appendChild(tr);
                 });
-
-                // Fila total del filtro
-                const totalPersonas = lista.length;
-                const totalHH = lista.reduce((sum, item) => sum + item.hh, 0);
-                const trTotal = document.createElement('tr');
-                trTotal.className = 'total-row';
-                trTotal.innerHTML = `
-                    <td colspan="2">TOTAL FILTRO</td>
-                    <td colspan="2">${totalPersonas} personas</td>
-                    <td>${totalHH.toFixed(2)}</td>
-                `;
-                tbody.appendChild(trTotal);
             }
         }
 
