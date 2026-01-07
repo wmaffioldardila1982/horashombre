@@ -8,125 +8,148 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+        /* ESTILOS GENERALES */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; min-height: 100vh; }
         
         .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
         .config-banner { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px 20px; margin: 20px; border-radius: 5px; }
         .config-banner.success { background: #d4edda; border-left-color: #28a745; }
         
+        /* TABS */
         .tabs { display: flex; background: #f5f5f5; border-bottom: 2px solid #ddd; flex-wrap: wrap; }
-        .tab { flex: 1; min-width: 150px; padding: 15px; text-align: center; cursor: pointer; background: #f5f5f5; border: none; font-size: 16px; font-weight: 600; transition: all 0.3s; }
+        .tab { flex: 1; min-width: 120px; padding: 12px; text-align: center; cursor: pointer; background: #f5f5f5; border: none; font-size: 15px; font-weight: 600; transition: all 0.3s; }
         .tab:hover { background: #e0e0e0; }
         .tab.active { background: white; border-bottom: 3px solid #667eea; color: #667eea; }
         
-        .content { padding: 30px; }
+        /* CONTENIDO */
+        .content { padding: 20px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        .form-group { margin-bottom: 20px; }
-        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
-        input, select, textarea { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; transition: border 0.3s; }
+        /* FORMULARIOS */
+        .form-group { margin-bottom: 15px; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 13px; }
+        input, select, textarea { width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; }
         
-        button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: 600; margin-right: 10px; margin-bottom: 10px; }
-        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+        /* BOTONES */
+        button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 600; margin-right: 5px; margin-bottom: 5px; }
+        button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-secondary { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
         .btn-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
         .btn-success { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
         .btn-warning { background: linear-gradient(135deg, #ffd89b 0%, #ff9a56 100%); }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        th { background: #4a69bd; color: white; padding: 12px; text-align: center; font-weight: 600; font-size: 13px; border: 1px solid #fff; }
-        td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        /* TABLAS */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 13px; }
+        th { background: #4a69bd; color: white; padding: 10px; text-align: center; font-weight: 600; border: 1px solid #fff; }
+        td { padding: 8px; border: 1px solid #ddd; text-align: center; }
         tr:hover { background: #f9f9f9; }
-        .delete-btn, .edit-btn { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; margin: 2px; }
+        .delete-btn, .edit-btn { background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px; }
         .edit-btn { background: #3498db; }
         
-        /* ESTILOS DE AUDITORÍA */
+        /* CLASES ESPECÍFICAS */
         .clickable-number { color: #667eea; font-weight: bold; text-decoration: underline; cursor: pointer; }
-        .clickable-number:hover { color: #764ba2; background-color: #f0f0f0; }
-        
-        /* ESTILOS TABLA ESTADISTICAS */
         .stats-table .frente-col { text-align: left; font-weight: 600; background: #f8f9fa; }
-        .stats-table .total-row { background: #ecf0f1; color: #000000; font-weight: 700; font-size: 14px; border-top: 2px solid #95a5a6; }
-        .stats-table .grand-total-row { background: #bdc3c7; color: #000000; font-weight: 800; font-size: 16px; border-top: 2px solid #2c3e50; }
-
+        .stats-table .total-row { background: #ecf0f1; color: #000; font-weight: 700; border-top: 2px solid #95a5a6; }
+        .stats-table .grand-total-row { background: #bdc3c7; color: #000; font-weight: 800; font-size: 15px; border-top: 2px solid #2c3e50; }
+        
         /* MATRIZ */
         .matrix-table th { background-color: #0277bd; color: white; white-space: nowrap; }
         .matrix-table th:first-child { position: sticky; left: 0; z-index: 10; background-color: #01579b; }
         .matrix-table td:first-child { position: sticky; left: 0; background-color: #f1f8e9; font-weight: bold; text-align: left; }
-        .matrix-table td { min-width: 60px; }
         .matrix-total-col { background-color: #e0e0e0; font-weight: bold; }
-        
-        /* REPORTE DETALLADO */
         #tablaFiltroDetallado td:nth-child(4) { background-color: #e1f5fe; font-weight: bold; color: #01579b; }
 
-        /* ESTILOS DASHBOARD GRÁFICO */
+        /* --- ESTILOS DASHBOARD COMPACTO (MEJORADO) --- */
+        .periodo-selector { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 8px; flex-wrap: wrap; }
+        
         .charts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: 1fr 1fr; /* 2 Columnas fijas */
+            grid-template-rows: auto auto;  /* 2 Filas automáticas */
+            gap: 15px;
+            margin-top: 15px;
         }
+        
         .chart-card {
             background: white;
-            border: 1px solid #ddd;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            min-height: 350px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            height: 320px; /* Altura controlada y fija */
+            display: flex;
+            flex-direction: column;
         }
+        
         .chart-card h3 {
             text-align: center;
-            color: #555;
-            margin-bottom: 15px;
-            font-size: 16px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
+            color: #444;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 5px;
+            height: 30px; /* Altura fija título */
         }
 
-        .periodo-selector { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; flex-wrap: wrap; }
-        .search-box { position: relative; margin-bottom: 15px; }
-        .filter-section { background: #e1f5fe; border: 1px solid #81d4fa; border-radius: 8px; padding: 20px; margin-top: 30px; }
-        .filter-controls { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px; }
-        .filter-controls .form-group { margin-bottom: 0; flex: 1; }
+        .chart-canvas-container {
+            flex: 1; /* Ocupa el resto del espacio */
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow: auto; }
-        .modal-content { background: white; margin: 50px auto; padding: 30px; border-radius: 10px; max-width: 600px; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #ddd; }
-        .close { font-size: 28px; font-weight: bold; cursor: pointer; color: #999; }
+        /* Responsive para móviles */
+        @media (max-width: 900px) {
+            .charts-grid {
+                grid-template-columns: 1fr; /* 1 Columna en móviles */
+            }
+        }
+
+        /* OTROS */
+        .filter-section { background: #e1f5fe; border: 1px solid #81d4fa; border-radius: 8px; padding: 15px; margin-top: 20px; }
+        .filter-controls { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 10px; }
+        .filter-controls .form-group { margin-bottom: 0; flex: 1; }
+        .search-box { position: relative; margin-bottom: 10px; }
         
+        /* MODAL Y LOADING */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow: auto; }
+        .modal-content { background: white; margin: 50px auto; padding: 30px; border-radius: 10px; max-width: 500px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+        .close { font-size: 24px; cursor: pointer; color: #999; }
         .loading { display: none; text-align: center; padding: 20px; }
         .loading.active { display: block; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .instructions { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; }
-        .code-block { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; font-family: monospace; overflow-x: auto; margin: 10px 0; }
-        .sync-status { display: inline-block; padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: 600; margin-left: 10px; }
+        .instructions { background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0; font-size: 14px; }
+        .code-block { background: #f1f1f1; border: 1px solid #ddd; padding: 10px; font-family: monospace; overflow-x: auto; margin: 5px 0; font-size: 12px; }
+        .sync-status { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 10px; }
         .sync-status.synced { background: #d4edda; color: #155724; }
         .sync-status.error { background: #f8d7da; color: #721c24; }
         .sync-status.syncing { background: #fff3cd; color: #856404; }
-        
-        .trabajador-checkbox { display: flex; align-items: center; padding: 10px; margin: 5px 0; background: white; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .trabajador-checkbox { display: flex; align-items: center; padding: 8px; margin: 2px 0; background: white; border-radius: 4px; cursor: pointer; }
         .trabajador-checkbox:hover { background: #e3f2fd; }
-        .trabajador-checkbox input[type="checkbox"] { width: 20px; height: 20px; margin-right: 10px; cursor: pointer; }
+        .trabajador-checkbox input { width: auto; margin-right: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>📊 Control de Horas Hombre</h1>
-            <p>Sistema integrado con Google Sheets</p>
             <span id="syncStatus" class="sync-status"></span>
         </div>
 
         <div id="configBanner" class="config-banner">
-            <h3>⚙️ Configuración Requerida</h3>
-            <p>Para usar esta aplicación, primero debes configurar la conexión con Google Sheets.</p>
+            <h3>⚙️ Configuración</h3>
+            <p>Conecta tu Google Sheets para empezar.</p>
         </div>
         
         <div class="tabs">
@@ -134,198 +157,139 @@
             <button class="tab" onclick="showTab('registro')" id="tabRegistro" disabled>📝 Registro</button>
             <button class="tab" onclick="showTab('trabajadores')" id="tabTrabajadores" disabled>👥 Trabajadores</button>
             <button class="tab" onclick="showTab('estadisticas')" id="tabEstadisticas" disabled>📈 Estadísticas</button>
-            <button class="tab" onclick="showTab('graficos')" id="tabGraficos" disabled>📊 Dashboard Gráfico</button>
-            <button class="tab" onclick="showTab('datos')" id="tabDatos" disabled>📋 Datos Detallados</button>
+            <button class="tab" onclick="showTab('graficos')" id="tabGraficos" disabled>📊 Dashboard</button>
+            <button class="tab" onclick="showTab('datos')" id="tabDatos" disabled>📋 Datos</button>
         </div>
         
         <div class="content">
             <div id="configuracion" class="tab-content active">
-                <h2>Configuración de Google Sheets</h2>
+                <h2>Conexión</h2>
                 <div class="instructions">
-                    <h3>📋 Instrucciones</h3>
-                    <p>Pega aquí la URL de tu Web App de Apps Script (debe terminar en /exec).</p>
-                    <div class="code-block">Ejemplo: https://script.google.com/macros/s/AKfycbx.../exec</div>
+                    <p>URL del Web App (Apps Script):</p>
+                    <div class="code-block">Ej: https://script.google.com/macros/s/.../exec</div>
                 </div>
                 <form id="configForm">
                     <div class="form-group">
-                        <label for="webAppUrl">URL de tu Web App:</label>
                         <input type="url" id="webAppUrl" placeholder="https://script.google.com/..." required>
                     </div>
-                    <button type="submit">💾 Guardar y Conectar</button>
+                    <button type="submit">💾 Conectar</button>
                 </form>
-                <div id="loadingConfig" class="loading"><div class="spinner"></div><p>Probando conexión...</p></div>
+                <div id="loadingConfig" class="loading"><div class="spinner"></div><p>Conectando...</p></div>
             </div>
 
             <div id="registro" class="tab-content">
                 <h2>Registrar Horas</h2>
-                
                 <div style="margin-bottom: 20px;">
-                    <button onclick="mostrarRegistroSimple()" class="btn-info">📝 Registro Simple</button>
-                    <button onclick="mostrarRegistroMasivo()" class="btn-success">👥 Registro Masivo</button>
-                    <button onclick="importarRegistrosExcel()" class="btn-warning">📤 Importar Excel</button>
+                    <button onclick="mostrarRegistroSimple()" class="btn-info">📝 Simple</button>
+                    <button onclick="mostrarRegistroMasivo()" class="btn-success">👥 Masivo</button>
+                    <button onclick="importarRegistrosExcel()" class="btn-warning">📤 Excel</button>
                     <input type="file" id="fileImportRegistros" accept=".xlsx,.xls" style="display:none" onchange="procesarArchivoRegistros(event)">
                 </div>
 
                 <div id="formSimple">
                     <form id="registroForm">
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>Fecha:</label>
-                                <input type="date" id="fecha" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Trabajador:</label>
-                                <select id="trabajadorSelect" required>
-                                    <option value="">-- Seleccione --</option>
-                                </select>
-                            </div>
+                            <div class="form-group"><label>Fecha:</label><input type="date" id="fecha" required></div>
+                            <div class="form-group"><label>Trabajador:</label><select id="trabajadorSelect" required><option value="">-- --</option></select></div>
                         </div>
-                        <div id="infoTrabajador" class="info-trabajador" style="display: none;"></div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Frente de Trabajo:</label>
+                                <label>Frente:</label>
                                 <input type="text" id="frente" required list="frentesList" placeholder="Ej: K948">
-                                <datalist id="frentesList">
-                                    <option value="PLANEACIÓN"><option value="ADMINISTRATIVO"><option value="K948">
-                                    <option value="K940"><option value="K104">
-                                </datalist>
+                                <datalist id="frentesList"><option value="PLANEACIÓN"><option value="ADMINISTRATIVO"><option value="K948"><option value="K940"><option value="K104"></datalist>
                             </div>
-                            <div class="form-group"><label>Horas Directa:</label><input type="number" id="horasDirecta" step="0.5" min="0" value="0"></div>
-                            <div class="form-group"><label>Horas Indirecta:</label><input type="number" id="horasIndirecta" step="0.5" min="0" value="0"></div>
+                            <div class="form-group"><label>H. Directa:</label><input type="number" id="horasDirecta" step="0.5" min="0" value="0"></div>
+                            <div class="form-group"><label>H. Indirecta:</label><input type="number" id="horasIndirecta" step="0.5" min="0" value="0"></div>
                         </div>
-                        <button type="submit">Agregar Registro</button>
-                        <button type="button" class="btn-info" onclick="sincronizar()">🔄 Sincronizar</button>
+                        <button type="submit">Guardar</button>
+                        <button type="button" class="btn-info" onclick="sincronizar()">🔄 Sync</button>
                     </form>
                 </div>
 
                 <div id="formMasivo" style="display: none;">
                     <form id="registroMasivoForm">
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>Fecha:</label>
-                                <input type="date" id="fechaMasiva" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Frente de Trabajo:</label>
-                                <input type="text" id="frenteMasivo" placeholder="Ej: K948" required list="frentesList">
-                            </div>
+                            <div class="form-group"><label>Fecha:</label><input type="date" id="fechaMasiva" required></div>
+                            <div class="form-group"><label>Frente:</label><input type="text" id="frenteMasivo" placeholder="Ej: K948" required list="frentesList"></div>
                         </div>
-                        
                         <div class="form-row">
-                            <div class="form-group"><label>Horas Directa (defecto):</label><input type="number" id="horasDirectaMasiva" step="0.5" value="8"></div>
-                            <div class="form-group"><label>Horas Indirecta (defecto):</label><input type="number" id="horasIndirectaMasiva" step="0.5" value="0"></div>
+                            <div class="form-group"><label>H. Directa:</label><input type="number" id="horasDirectaMasiva" step="0.5" value="8"></div>
+                            <div class="form-group"><label>H. Indirecta:</label><input type="number" id="horasIndirectaMasiva" step="0.5" value="0"></div>
                         </div>
-
                         <div class="form-group">
-                            <label>Selecciona los trabajadores:</label>
-                            <div class="search-box">
-                                <input type="text" id="buscarTrabajadorMasivo" placeholder="🔍 Buscar trabajador..." onkeyup="filtrarTrabajadoresMasivo()">
-                            </div>
-                            
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; max-height: 400px; overflow-y: auto;">
-                                <div style="margin-bottom: 10px;">
-                                    <button type="button" onclick="seleccionarTodosTrabajadores()" class="btn-info">✓ Todos</button>
-                                    <button type="button" onclick="deseleccionarTodosTrabajadores()" class="btn-secondary">✗ Ninguno</button>
-                                    <span id="contadorSeleccionados" style="margin-left: 15px; font-weight: 600;">0 seleccionados</span>
+                            <label>Trabajadores:</label>
+                            <div class="search-box"><input type="text" id="buscarTrabajadorMasivo" placeholder="🔍 Buscar..." onkeyup="filtrarTrabajadoresMasivo()"></div>
+                            <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; max-height: 300px; overflow-y: auto;">
+                                <div style="margin-bottom: 5px;">
+                                    <button type="button" onclick="seleccionarTodosTrabajadores()" class="btn-info" style="padding: 5px 10px; font-size: 12px;">Todos</button>
+                                    <button type="button" onclick="deseleccionarTodosTrabajadores()" class="btn-secondary" style="padding: 5px 10px; font-size: 12px;">Ninguno</button>
+                                    <span id="contadorSeleccionados" style="margin-left: 10px; font-size: 12px; font-weight: 600;">0</span>
                                 </div>
                                 <div id="listaTrabajadoresMasivo"></div>
                             </div>
                         </div>
-
-                        <button type="submit">💾 Registrar Todos</button>
+                        <button type="submit">💾 Guardar Todos</button>
                         <button type="button" class="btn-secondary" onclick="mostrarRegistroSimple()">Cancelar</button>
                     </form>
                 </div>
-                <div id="loadingRegistro" class="loading"><div class="spinner"></div><p>Guardando...</p></div>
+                <div id="loadingRegistro" class="loading"><div class="spinner"></div><p>Procesando...</p></div>
             </div>
 
             <div id="trabajadores" class="tab-content">
-                <h2>Gestión de Trabajadores</h2>
-                <button onclick="mostrarModalTrabajador()">➕ Nuevo Trabajador</button>
-                <button class="btn-info" onclick="sincronizar()">🔄 Sincronizar</button>
-                <div class="search-box">
-                    <input type="text" id="buscarTrabajador" placeholder="🔍 Buscar..." onkeyup="filtrarTrabajadores()">
-                </div>
+                <h2>Trabajadores</h2>
+                <button onclick="mostrarModalTrabajador()">➕ Nuevo</button>
+                <button class="btn-info" onclick="sincronizar()">🔄 Sync</button>
+                <div class="search-box"><input type="text" id="buscarTrabajador" placeholder="🔍 Buscar..." onkeyup="filtrarTrabajadores()"></div>
                 <div style="overflow-x: auto;">
-                    <table id="tablaTrabajadores">
-                        <thead><tr><th>Cédula</th><th>Nombre</th><th>Cargo</th><th>Tipo</th><th>Acciones</th></tr></thead>
-                        <tbody id="bodyTrabajadores"></tbody>
-                    </table>
+                    <table id="tablaTrabajadores"><thead><tr><th>Cédula</th><th>Nombre</th><th>Cargo</th><th>Tipo</th><th>Acción</th></tr></thead><tbody id="bodyTrabajadores"></tbody></table>
                 </div>
             </div>
             
             <div id="estadisticas" class="tab-content">
-                <h2>Estadísticas del Proyecto</h2>
-                
+                <h2>Estadísticas</h2>
                 <div class="periodo-selector">
                     <label>Desde:</label><input type="date" id="fechaInicio">
                     <label>Hasta:</label><input type="date" id="fechaFin">
-                    <button onclick="actualizarEstadisticas()">Actualizar Todo</button>
+                    <button onclick="actualizarEstadisticas()">Actualizar</button>
                 </div>
 
                 <div style="overflow-x: auto;">
                     <table class="stats-table">
                         <thead>
-                            <tr>
-                                <th rowspan="3">FRENTE</th>
-                                <th colspan="2" rowspan="2">PERSONAL (Click ver)</th>
-                                <th colspan="4">HORAS HOMBRE (HH)</th>
-                            </tr>
-                            <tr>
-                                <th colspan="2">PERÍODO</th>
-                                <th colspan="2">ACUMULADO</th>
-                            </tr>
-                            <tr>
-                                <th>DIRECTA</th><th>INDIRECTA</th>
-                                <th>DIRECTA</th><th>INDIRECTA</th>
-                                <th>DIRECTA</th><th>INDIRECTA</th>
-                            </tr>
+                            <tr><th rowspan="3">FRENTE</th><th colspan="2" rowspan="2">PERSONAL</th><th colspan="4">HORAS HOMBRE (HH)</th></tr>
+                            <tr><th colspan="2">PERÍODO</th><th colspan="2">ACUMULADO</th></tr>
+                            <tr><th>DIR</th><th>INDIR</th><th>DIR</th><th>INDIR</th><th>DIR</th><th>INDIR</th></tr>
                         </thead>
                         <tbody id="statsBody"></tbody>
                     </table>
                 </div>
 
-                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #667eea;">👥 Resumen por Cargo (Global)</h3>
+                <h3 style="margin-top: 20px; color: #667eea;">👥 Cargos (Global)</h3>
                 <div style="overflow-x: auto;">
-                    <table class="stats-table">
-                        <thead>
-                            <tr>
-                                <th style="text-align: left; padding-left: 20px;">CARGO</th>
-                                <th>CANTIDAD (Click para ver)</th>
-                                <th>PORCENTAJE</th>
-                            </tr>
-                        </thead>
-                        <tbody id="statsCargosBody"></tbody>
-                    </table>
+                    <table class="stats-table"><thead><tr><th style="text-align: left;">CARGO</th><th>CANTIDAD</th><th>%</th></tr></thead><tbody id="statsCargosBody"></tbody></table>
                 </div>
 
                 <div class="filter-section">
-                    <h3 style="color: #0277bd; margin-bottom: 15px;">🔎 Matriz de Personal (Cargo vs Frente)</h3>
-                    <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Vista completa de la distribución de personal por frente en el período seleccionado.</p>
-                    <button onclick="generarMatrizPersonal()" class="btn-info">🔄 Generar Matriz del Período</button>
-                    <div style="overflow-x: auto; margin-top: 15px;">
+                    <h3 style="color: #0277bd;">🔎 Matriz (Cargo vs Frente)</h3>
+                    <button onclick="generarMatrizPersonal()" class="btn-info" style="font-size: 12px;">🔄 Generar</button>
+                    <div style="overflow-x: auto; margin-top: 10px;">
                         <table class="stats-table matrix-table" id="tablaMatriz" style="display: none;">
-                            <thead id="headerMatriz"></thead>
-                            <tbody id="bodyMatriz"></tbody>
-                            <tfoot id="footerMatriz"></tfoot>
+                            <thead id="headerMatriz"></thead><tbody id="bodyMatriz"></tbody><tfoot id="footerMatriz"></tfoot>
                         </table>
-                        <p id="mensajeMatrizVacia" style="display:none; text-align: center; color: #666; padding: 20px;">No hay datos para mostrar en este período.</p>
+                        <p id="mensajeMatrizVacia" style="display:none; text-align: center; color: #666; font-size: 13px;">Sin datos.</p>
                     </div>
                 </div>
 
                 <div class="filter-section">
-                    <h3 style="color: #0277bd; margin-bottom: 15px;">🔎 Reporte Diario Detallado</h3>
+                    <h3 style="color: #0277bd;">🔎 Reporte Diario Detallado</h3>
                     <div class="filter-controls">
-                        <div class="form-group"><label>Frente:</label><select id="filtroFrente"><option value="TODOS">-- Todos --</option></select></div>
-                        <div class="form-group"><label>Cargo:</label><select id="filtroCargo"><option value="TODOS">-- Todos --</option></select></div>
-                        <button onclick="consultarFiltroDetallado()" class="btn-info" style="margin-bottom: 0;">🔍 Consultar</button>
+                        <div class="form-group"><label>Frente:</label><select id="filtroFrente"><option value="TODOS">Todos</option></select></div>
+                        <div class="form-group"><label>Cargo:</label><select id="filtroCargo"><option value="TODOS">Todos</option></select></div>
+                        <button onclick="consultarFiltroDetallado()" class="btn-info" style="margin-bottom:0;">🔍</button>
                     </div>
                     <div style="overflow-x: auto;">
-                        <table class="stats-table" id="tablaFiltroDetallado" style="display: none;">
-                            <thead><tr><th>FECHA</th><th>FRENTE</th><th>CARGO</th><th>CANTIDAD</th></tr></thead>
-                            <tbody id="bodyFiltroDetallado"></tbody>
-                        </table>
-                        <p id="mensajeSinResultados" style="display:none; text-align: center; color: #666; padding: 20px;">No se encontraron registros.</p>
+                        <table class="stats-table" id="tablaFiltroDetallado" style="display: none;"><thead><tr><th>FECHA</th><th>FRENTE</th><th>CARGO</th><th>CANTIDAD</th></tr></thead><tbody id="bodyFiltroDetallado"></tbody></table>
+                        <p id="mensajeSinResultados" style="display:none; text-align: center; color: #666; font-size: 13px;">Sin resultados.</p>
                     </div>
                 </div>
             </div>
@@ -335,36 +299,41 @@
                 <div class="periodo-selector">
                     <label>Desde:</label><input type="date" id="fechaInicioGraf">
                     <label>Hasta:</label><input type="date" id="fechaFinGraf">
-                    <button onclick="actualizarGraficos()" class="btn-info">🔄 Actualizar Gráficos</button>
+                    <button onclick="actualizarGraficos()" class="btn-info">🔄 Actualizar</button>
                 </div>
                 
                 <div class="charts-grid">
                     <div class="chart-card">
-                        <h3>📈 Evolución de Personal Diario</h3>
-                        <canvas id="chartEvolucion"></canvas>
+                        <h3>📈 Evolución Diaria</h3>
+                        <div class="chart-canvas-container">
+                            <canvas id="chartEvolucion"></canvas>
+                        </div>
                     </div>
                     <div class="chart-card">
-                        <h3>🍩 Distribución HH por Frente (Total)</h3>
-                        <canvas id="chartDistribucion"></canvas>
+                        <h3>🍩 Distribución HH (Total)</h3>
+                        <div class="chart-canvas-container">
+                            <canvas id="chartDistribucion"></canvas>
+                        </div>
                     </div>
                     <div class="chart-card">
-                        <h3>📊 Eficiencia: Directa vs Indirecta</h3>
-                        <canvas id="chartEficiencia"></canvas>
+                        <h3>📊 Eficiencia (Dir vs Indir)</h3>
+                        <div class="chart-canvas-container">
+                            <canvas id="chartEficiencia"></canvas>
+                        </div>
                     </div>
                     <div class="chart-card">
-                        <h3>👷 Top 5 Cargos (Por Horas)</h3>
-                        <canvas id="chartTopCargos"></canvas>
+                        <h3>👷 Top 5 Cargos</h3>
+                        <div class="chart-canvas-container">
+                            <canvas id="chartTopCargos"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <div id="datos" class="tab-content">
-                <h2>Registros Detallados</h2>
+                <h2>Registros</h2>
                 <div style="overflow-x: auto;">
-                    <table id="tablaRegistros">
-                        <thead><tr><th>Fecha</th><th>Trabajador</th><th>Cédula</th><th>Frente</th><th>Horas</th><th>Acción</th></tr></thead>
-                        <tbody id="bodyRegistros"></tbody>
-                    </table>
+                    <table id="tablaRegistros"><thead><tr><th>Fecha</th><th>Trabajador</th><th>Cédula</th><th>Frente</th><th>Horas</th><th>Acción</th></tr></thead><tbody id="bodyRegistros"></tbody></table>
                 </div>
             </div>
         </div>
@@ -373,507 +342,387 @@
     <div id="modalTrabajador" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">Nuevo Trabajador</h2>
-                <span class="close" onclick="cerrarModalTrabajador()">&times;</span>
+                <h2 id="modalTitle">Trabajador</h2><span class="close" onclick="cerrarModalTrabajador()">&times;</span>
             </div>
             <form id="formTrabajador">
                 <input type="hidden" id="cedulaOriginal">
                 <div class="form-group"><label>Cédula:</label><input type="text" id="cedula" required></div>
-                <div class="form-group"><label>Nombre Completo:</label><input type="text" id="nombreCompleto" required></div>
+                <div class="form-group"><label>Nombre:</label><input type="text" id="nombreCompleto" required></div>
                 <div class="form-group"><label>Cargo:</label><input type="text" id="cargo" required></div>
-                <div class="form-group"><label>Tipo de Cargo:</label>
-                    <select id="tipoCargo" required>
-                        <option value="Directa">Directa</option>
-                        <option value="Indirecta">Indirecta</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Fecha Ingreso:</label><input type="date" id="fechaIngreso" required></div>
-                <div class="form-group"><label>Fecha Retiro:</label><input type="date" id="fechaRetiro"></div>
-                <button type="submit">Guardar Trabajador</button>
-                <button type="button" class="btn-secondary" onclick="cerrarModalTrabajador()">Cancelar</button>
+                <div class="form-group"><label>Tipo:</label><select id="tipoCargo" required><option value="Directa">Directa</option><option value="Indirecta">Indirecta</option></select></div>
+                <div class="form-group"><label>Ingreso:</label><input type="date" id="fechaIngreso" required></div>
+                <div class="form-group"><label>Retiro:</label><input type="date" id="fechaRetiro"></div>
+                <button type="submit">Guardar</button>
             </form>
         </div>
     </div>
 
     <script>
-        // VARIABLES GLOBALES
-        let registros = [];
-        let trabajadores = [];
-        let webAppUrl = '';
+        // --- VARIABLES ---
+        let registros = [], trabajadores = [];
+        let webAppUrl = localStorage.getItem('webAppUrl') || '';
         let isConfigured = false;
-        
-        // Variables para los gráficos (para poder destruirlos y crearlos de nuevo)
-        let chartEvolucionInstance = null;
-        let chartDistribucionInstance = null;
-        let chartEficienciaInstance = null;
-        let chartTopCargosInstance = null;
+        let chartEvolucionInstance = null, chartDistribucionInstance = null, chartEficienciaInstance = null, chartTopCargosInstance = null;
 
-        cargarConfiguracion();
-        
-        // Fechas por defecto
+        // --- INICIALIZACIÓN ---
+        if(webAppUrl) { 
+            document.getElementById('webAppUrl').value = webAppUrl; 
+            isConfigured = true; 
+            document.getElementById('configBanner').className = 'config-banner success'; 
+            document.getElementById('configBanner').innerHTML = '<h3>✅ Conectado</h3>';
+            document.querySelectorAll('button[disabled]').forEach(b => b.disabled = false);
+            sincronizar();
+        }
+
         const hoy = new Date();
         const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
         
-        document.getElementById('fecha').valueAsDate = hoy;
-        document.getElementById('fechaMasiva').valueAsDate = hoy;
-        
-        // Fechas Estadísticas
-        document.getElementById('fechaFin').valueAsDate = hoy;
-        document.getElementById('fechaInicio').valueAsDate = inicioMes;
-        
-        // Fechas Gráficos
-        document.getElementById('fechaFinGraf').valueAsDate = hoy;
-        document.getElementById('fechaInicioGraf').valueAsDate = inicioMes;
+        ['fecha','fechaMasiva','fechaFin','fechaFinGraf'].forEach(id => document.getElementById(id).valueAsDate = hoy);
+        ['fechaInicio','fechaInicioGraf'].forEach(id => document.getElementById(id).valueAsDate = inicioMes);
 
-        // --- VALIDACIÓN ---
-        function existeRegistro(fecha, cedula) {
-            return registros.find(r => r.fecha === fecha && r.trabajadorCedula === cedula);
-        }
+        // --- UTILS ---
+        function normalizarFecha(f) { if (!f) return null; if (typeof f === 'number') { const d = new Date(1899, 11, 30); d.setDate(d.getDate() + (f - 1)); return d.toISOString().split('T')[0]; } if (typeof f === 'string' && f.includes('T')) return f.split('T')[0]; return f; }
+        function existeRegistro(fecha, cedula) { return registros.find(r => r.fecha === fecha && r.trabajadorCedula === cedula); }
 
-        // --- FORMULARIOS ---
-        document.getElementById('configForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            webAppUrl = document.getElementById('webAppUrl').value.trim();
+        // --- LÓGICA PRINCIPAL ---
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); webAppUrl = document.getElementById('webAppUrl').value.trim();
             document.getElementById('loadingConfig').classList.add('active');
             try {
-                const response = await fetch(webAppUrl + '?action=getTrabajadores');
-                if (!response.ok) throw new Error('Error respuesta');
-                localStorage.setItem('webAppUrl', webAppUrl);
-                isConfigured = true;
-                document.getElementById('loadingConfig').classList.remove('active');
-                await sincronizar();
-                alert('✅ Configuración guardada');
-                showTab('registro');
-            } catch (error) {
-                document.getElementById('loadingConfig').classList.remove('active');
-                alert('❌ Error al conectar: ' + error.message);
-            }
-        });
-        
-        // REGISTRO SIMPLE
-        document.getElementById('registroForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            if (!isConfigured) return alert('Configura primero la conexión');
-            
-            const horasDirecta = parseFloat(document.getElementById('horasDirecta').value) || 0;
-            const horasIndirecta = parseFloat(document.getElementById('horasIndirecta').value) || 0;
-            if (horasDirecta === 0 && horasIndirecta === 0) return alert('Ingrese horas');
-
-            const cedula = document.getElementById('trabajadorSelect').value;
-            const fecha = document.getElementById('fecha').value;
-            const trabajador = trabajadores.find(t => t.cedula === cedula);
-            
-            const duplicado = existeRegistro(fecha, cedula);
-            if (duplicado) {
-                alert(`⚠️ ALERTA: ${trabajador.nombreCompleto} ya tiene registro en el frente "${duplicado.frente}".`);
-                return;
-            }
-            
-            const registro = {
-                id: Date.now() + Math.random(),
-                fecha: fecha,
-                trabajadorNombre: trabajador.nombreCompleto,
-                trabajadorCedula: trabajador.cedula,
-                frente: document.getElementById('frente').value.toUpperCase(),
-                horasDirecta: horasDirecta,
-                horasIndirecta: horasIndirecta
-            };
-            enviarRegistro(registro, this);
+                const res = await fetch(webAppUrl + '?action=getTrabajadores'); if(!res.ok) throw new Error('Error');
+                localStorage.setItem('webAppUrl', webAppUrl); isConfigured = true;
+                await sincronizar(); alert('✅ Conectado'); showTab('registro');
+            } catch (e) { alert('❌ Error Conexión'); } finally { document.getElementById('loadingConfig').classList.remove('active'); }
         });
 
-        // REGISTRO MASIVO
-        document.getElementById('registroMasivoForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            if (!isConfigured) return alert('Configura primero la conexión');
-            const checkboxes = document.querySelectorAll('#listaTrabajadoresMasivo input[type="checkbox"]:checked');
-            const seleccionados = Array.from(checkboxes).map(cb => cb.value);
-            if (seleccionados.length === 0) return alert('Selecciona trabajadores');
-            
-            const fecha = document.getElementById('fechaMasiva').value;
-            const frente = document.getElementById('frenteMasivo').value.toUpperCase();
-            const hDir = parseFloat(document.getElementById('horasDirectaMasiva').value) || 0;
-            const hIndir = parseFloat(document.getElementById('horasIndirectaMasiva').value) || 0;
-            
-            if (!confirm(`¿Registrar ${seleccionados.length} trabajadores en ${frente}?`)) return;
-            document.getElementById('loadingRegistro').classList.add('active');
-            let exitosos = 0;
-            let omitidos = 0;
-            let nombresOmitidos = [];
-            
-            for (const cedula of seleccionados) {
-                const trabajador = trabajadores.find(t => t.cedula === cedula);
-                if (!trabajador) continue;
-                const duplicado = existeRegistro(fecha, cedula);
-                if (duplicado) {
-                    omitidos++;
-                    nombresOmitidos.push(trabajador.nombreCompleto);
-                    continue;
-                }
-                const reg = { fecha: fecha, trabajadorNombre: trabajador.nombreCompleto, trabajadorCedula: trabajador.cedula, frente: frente, horasDirecta: hDir, horasIndirecta: hIndir };
-                try {
-                    await fetch(webAppUrl, { method: 'POST', body: JSON.stringify({ action: 'addRegistro', ...reg }) });
-                    registros.push(reg);
-                    exitosos++;
-                } catch (err) { console.error(err); }
-            }
-            actualizarTabla(); actualizarEstadisticas();
-            document.getElementById('loadingRegistro').classList.remove('active');
-            let mensaje = `✓ Proceso finalizado:\n- Guardados: ${exitosos}`;
-            if (omitidos > 0) { mensaje += `\n- ⚠️ OMITIDOS: ${omitidos}\n\n${nombresOmitidos.slice(0,5).join('\n')}${nombresOmitidos.length>5?'...':''}`; }
-            alert(mensaje);
-            mostrarRegistroSimple();
-        });
-
-        function mostrarRegistroSimple() { document.getElementById('formSimple').style.display = 'block'; document.getElementById('formMasivo').style.display = 'none'; }
-        function mostrarRegistroMasivo() { document.getElementById('formSimple').style.display = 'none'; document.getElementById('formMasivo').style.display = 'block'; cargarListaTrabajadoresMasivo(); }
-        
-        function cargarListaTrabajadoresMasivo() {
-            const lista = document.getElementById('listaTrabajadoresMasivo'); lista.innerHTML = '';
-            trabajadores.filter(t => !t.fechaRetiro).sort((a,b) => a.nombreCompleto.localeCompare(b.nombreCompleto))
-                .forEach(t => {
-                    const div = document.createElement('div'); div.className = 'trabajador-checkbox';
-                    div.innerHTML = `<input type="checkbox" id="m_${t.cedula}" value="${t.cedula}" onchange="actualizarContador()"><label for="m_${t.cedula}"><strong>${t.nombreCompleto}</strong> <span style="font-size:11px; color:#666">(${t.cargo})</span></label>`;
-                    lista.appendChild(div);
-                });
-            actualizarContador();
-        }
-        function filtrarTrabajadoresMasivo() {
-            const txt = document.getElementById('buscarTrabajadorMasivo').value.toLowerCase();
-            document.querySelectorAll('.trabajador-checkbox').forEach(div => { div.style.display = div.textContent.toLowerCase().includes(txt) ? 'flex' : 'none'; });
-        }
-        function seleccionarTodosTrabajadores() { document.querySelectorAll('#listaTrabajadoresMasivo input[type="checkbox"]').forEach(cb => { if(cb.parentElement.style.display !== 'none') cb.checked = true; }); actualizarContador(); }
-        function deseleccionarTodosTrabajadores() { document.querySelectorAll('#listaTrabajadoresMasivo input[type="checkbox"]').forEach(cb => cb.checked = false); actualizarContador(); }
-        function actualizarContador() { document.getElementById('contadorSeleccionados').textContent = `${document.querySelectorAll('#listaTrabajadoresMasivo input:checked').length} seleccionados`; }
-
-        async function enviarRegistro(registro, form) {
-            document.getElementById('loadingRegistro').classList.add('active');
-            try {
-                await fetch(webAppUrl, { method: 'POST', body: JSON.stringify({ action: 'addRegistro', ...registro }) });
-                registros.push(registro);
-                actualizarTabla(); actualizarEstadisticas();
-                form.reset(); document.getElementById('fecha').valueAsDate = new Date(); document.getElementById('horasDirecta').value = '0'; document.getElementById('horasIndirecta').value = '0';
-                alert('✓ Guardado');
-            } catch (error) { alert('❌ Error: ' + error.message); } finally { document.getElementById('loadingRegistro').classList.remove('active'); }
-        }
-
-        // --- ESTADÍSTICAS TABLAS ---
-        function actualizarEstadisticas() {
-            const fechaInicio = document.getElementById('fechaInicio').value;
-            const fechaFin = document.getElementById('fechaFin').value;
-            const registrosPeriodo = registros.filter(r => r.fecha >= fechaInicio && r.fecha <= fechaFin);
-            
-            actualizarSelectsFiltro(registrosPeriodo);
-            const stats = {};
-            registros.forEach(r => {
-                if (r.fecha <= fechaFin) {
-                    if (!stats[r.frente]) initStats(stats, r.frente);
-                    stats[r.frente].hDirAcum += r.horasDirecta; stats[r.frente].hIndirAcum += r.horasIndirecta;
-                }
-            });
-            registrosPeriodo.forEach(r => {
-                if (!stats[r.frente]) initStats(stats, r.frente);
-                if (r.horasDirecta > 0) stats[r.frente].dirP.add(r.trabajadorCedula);
-                if (r.horasIndirecta > 0) stats[r.frente].indirP.add(r.trabajadorCedula);
-                stats[r.frente].hDirP += r.horasDirecta; stats[r.frente].hIndirP += r.horasIndirecta;
-            });
-            const tbody = document.getElementById('statsBody'); tbody.innerHTML = '';
-            let tDirP = 0, tIndirP = 0, tHDirP = 0, tHIndirP = 0, tHDirAcum = 0, tHIndirAcum = 0;
-            Object.keys(stats).sort().forEach(frente => {
-                const s = stats[frente]; const cDir = s.dirP.size; const cIndir = s.indirP.size;
-                tDirP += cDir; tIndirP += cIndir; tHDirP += s.hDirP; tHIndirP += s.hIndirP; tHDirAcum += s.hDirAcum; tHIndirAcum += s.hIndirAcum;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="frente-col">${frente}</td><td class="clickable-number" onclick="verDetalle('${frente}','Directa','${[...s.dirP]}')">${cDir}</td><td class="clickable-number" onclick="verDetalle('${frente}','Indirecta','${[...s.indirP]}')">${cIndir}</td><td>${s.hDirP.toFixed(2)}</td><td>${s.hIndirP.toFixed(2)}</td><td>${s.hDirAcum.toFixed(2)}</td><td>${s.hIndirAcum.toFixed(2)}</td>`;
-                tbody.appendChild(tr);
-            });
-            const trTotal = document.createElement('tr'); trTotal.className = 'total-row';
-            trTotal.innerHTML = `<td class="frente-col">SUBTOTAL</td><td>${tDirP}</td><td>${tIndirP}</td><td>${tHDirP.toFixed(2)}</td><td>${tHIndirP.toFixed(2)}</td><td>${tHDirAcum.toFixed(2)}</td><td>${tHIndirAcum.toFixed(2)}</td>`;
-            tbody.appendChild(trTotal);
-            const trGranTotal = document.createElement('tr'); trGranTotal.className = 'grand-total-row';
-            trGranTotal.innerHTML = `<td class="frente-col">TOTAL</td><td colspan="2">${tDirP + tIndirP}</td><td colspan="2">${(tHDirP + tHIndirP).toFixed(2)}</td><td colspan="2">${(tHDirAcum + tHIndirAcum).toFixed(2)}</td>`;
-            tbody.appendChild(trGranTotal);
-
-            const statsCargos = {}; const personasTotal = new Set();
-            registrosPeriodo.forEach(r => {
-                personasTotal.add(r.trabajadorCedula); const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
-                let cargo = trab ? trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim() : 'SIN DEFINIR';
-                if (!statsCargos[cargo]) statsCargos[cargo] = new Set(); statsCargos[cargo].add(r.trabajadorCedula);
-            });
-            const tbodyCargos = document.getElementById('statsCargosBody'); tbodyCargos.innerHTML = '';
-            const lista = Object.keys(statsCargos).map(c => ({nombre: c, total: statsCargos[c].size, ids: [...statsCargos[c]]})).sort((a,b) => b.total - a.total);
-            lista.forEach(item => {
-                const pct = personasTotal.size > 0 ? (item.total / personasTotal.size * 100).toFixed(1) : 0;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td style="text-align: left; padding-left: 20px; font-weight: 600;">${item.nombre}</td><td class="clickable-number" onclick="verDetalleCargo('${item.nombre}', '${item.ids}')">${item.total}</td><td>${pct}%</td>`;
-                tbodyCargos.appendChild(tr);
-            });
-            const trTotalCargos = document.createElement('tr'); trTotalCargos.className = 'total-row';
-            trTotalCargos.innerHTML = `<td style="text-align: left; padding-left: 20px;">TOTAL PERSONAS ÚNICAS</td><td>${personasTotal.size}</td><td>100%</td>`;
-            tbodyCargos.appendChild(trTotalCargos);
-        }
-
-        // --- FUNCIONES MATRIZ ---
-        function generarMatrizPersonal() {
-            const fechaInicio = document.getElementById('fechaInicio').value;
-            const fechaFin = document.getElementById('fechaFin').value;
-            const registrosPeriodo = registros.filter(r => r.fecha >= fechaInicio && r.fecha <= fechaFin);
-            
-            const tabla = document.getElementById('tablaMatriz');
-            const mensaje = document.getElementById('mensajeMatrizVacia');
-            const thead = document.getElementById('headerMatriz');
-            const tbody = document.getElementById('bodyMatriz');
-            const tfoot = document.getElementById('footerMatriz');
-            
-            if (registrosPeriodo.length === 0) { tabla.style.display = 'none'; mensaje.style.display = 'block'; return; }
-
-            const frentesSet = new Set(); const cargosSet = new Set(); const data = {};
-            registrosPeriodo.forEach(r => {
-                const frente = r.frente; const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
-                const cargo = trab ? trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim() : 'SIN DEFINIR';
-                frentesSet.add(frente); cargosSet.add(cargo);
-                if(!data[cargo]) data[cargo] = {}; if(!data[cargo][frente]) data[cargo][frente] = new Set();
-                data[cargo][frente].add(r.trabajadorCedula);
-            });
-            const frentesOrdenados = [...frentesSet].sort(); const cargosOrdenados = [...cargosSet].sort();
-            
-            thead.innerHTML = ''; let trHead = '<tr><th style="min-width: 200px;">CARGO</th>';
-            frentesOrdenados.forEach(f => { trHead += `<th>${f}</th>`; }); trHead += '<th class="matrix-total-col">TOTAL</th></tr>'; thead.innerHTML = trHead;
-
-            tbody.innerHTML = ''; const totalesColumna = {}; frentesOrdenados.forEach(f => totalesColumna[f] = 0); let granTotal = 0;
-            cargosOrdenados.forEach(cargo => {
-                let tr = `<tr><td>${cargo}</td>`; let totalFila = 0;
-                frentesOrdenados.forEach(frente => {
-                    const cantidad = data[cargo][frente] ? data[cargo][frente].size : 0;
-                    const style = cantidad > 0 ? 'font-weight:bold; color:#333;' : 'color:#ccc;';
-                    tr += `<td style="${style}">${cantidad > 0 ? cantidad : '-'}</td>`;
-                    totalFila += cantidad; totalesColumna[frente] += cantidad;
-                });
-                granTotal += totalFila; tr += `<td class="matrix-total-col">${totalFila}</td></tr>`; tbody.innerHTML += tr;
-            });
-            tfoot.innerHTML = ''; let trFoot = `<tr class="total-row"><td>TOTAL</td>`;
-            frentesOrdenados.forEach(f => { trFoot += `<td>${totalesColumna[f]}</td>`; });
-            trFoot += `<td class="matrix-total-col">${granTotal}</td></tr>`; tfoot.innerHTML = trFoot;
-            tabla.style.display = 'block'; mensaje.style.display = 'none';
-        }
-
-        // --- DASHBOARD GRÁFICO (Chart.js) ---
-        function actualizarGraficos() {
-            const fechaInicio = document.getElementById('fechaInicioGraf').value;
-            const fechaFin = document.getElementById('fechaFinGraf').value;
-            const registrosGraf = registros.filter(r => r.fecha >= fechaInicio && r.fecha <= fechaFin);
-
-            // 1. Datos para Evolución Diaria (Línea)
-            const diasMap = {};
-            registrosGraf.forEach(r => {
-                if(!diasMap[r.fecha]) diasMap[r.fecha] = new Set();
-                diasMap[r.fecha].add(r.trabajadorCedula);
-            });
-            const diasOrdenados = Object.keys(diasMap).sort();
-            const dataEvolucion = diasOrdenados.map(d => diasMap[d].size);
-
-            // 2. Datos para Distribución HH y Eficiencia (Dona y Barras)
-            const frentesStats = {};
-            registrosGraf.forEach(r => {
-                if(!frentesStats[r.frente]) frentesStats[r.frente] = { hhTotal:0, hhDir:0, hhIndir:0 };
-                frentesStats[r.frente].hhTotal += (r.horasDirecta + r.horasIndirecta);
-                frentesStats[r.frente].hhDir += r.horasDirecta;
-                frentesStats[r.frente].hhIndir += r.horasIndirecta;
-            });
-            const labelsFrentes = Object.keys(frentesStats).sort();
-            const dataDistribucion = labelsFrentes.map(f => frentesStats[f].hhTotal);
-            const dataDir = labelsFrentes.map(f => frentesStats[f].hhDir);
-            const dataIndir = labelsFrentes.map(f => frentesStats[f].hhIndir);
-
-            // 3. Datos Top Cargos
-            const cargosStats = {};
-            registrosGraf.forEach(r => {
-                const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
-                const cargo = trab ? trab.cargo.toUpperCase().trim() : 'SIN DEFINIR';
-                if(!cargosStats[cargo]) cargosStats[cargo] = 0;
-                cargosStats[cargo] += (r.horasDirecta + r.horasIndirecta);
-            });
-            const topCargos = Object.entries(cargosStats)
-                .sort((a,b) => b[1] - a[1]) // Ordenar descendente
-                .slice(0, 5); // Top 5
-            const labelsCargos = topCargos.map(i => i[0]);
-            const dataCargos = topCargos.map(i => i[1]);
-
-            // --- RENDERIZADO ---
-
-            // Destruir gráficos anteriores si existen
-            if(chartEvolucionInstance) chartEvolucionInstance.destroy();
-            if(chartDistribucionInstance) chartDistribucionInstance.destroy();
-            if(chartEficienciaInstance) chartEficienciaInstance.destroy();
-            if(chartTopCargosInstance) chartTopCargosInstance.destroy();
-
-            // Gráfico 1: Evolución
-            const ctx1 = document.getElementById('chartEvolucion').getContext('2d');
-            chartEvolucionInstance = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: diasOrdenados,
-                    datasets: [{
-                        label: 'Personal Activo',
-                        data: dataEvolucion,
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            // Gráfico 2: Distribución (Dona)
-            const ctx2 = document.getElementById('chartDistribucion').getContext('2d');
-            chartDistribucionInstance = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: labelsFrentes,
-                    datasets: [{
-                        data: dataDistribucion,
-                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            // Gráfico 3: Eficiencia (Barras Apiladas)
-            const ctx3 = document.getElementById('chartEficiencia').getContext('2d');
-            chartEficienciaInstance = new Chart(ctx3, {
-                type: 'bar',
-                data: {
-                    labels: labelsFrentes,
-                    datasets: [
-                        { label: 'HH Directa', data: dataDir, backgroundColor: '#36A2EB' },
-                        { label: 'HH Indirecta', data: dataIndir, backgroundColor: '#9966FF' }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: { x: { stacked: true }, y: { stacked: true } }
-                }
-            });
-
-            // Gráfico 4: Top Cargos
-            const ctx4 = document.getElementById('chartTopCargos').getContext('2d');
-            chartTopCargosInstance = new Chart(ctx4, {
-                type: 'bar',
-                data: {
-                    labels: labelsCargos,
-                    datasets: [{
-                        label: 'Total HH',
-                        data: dataCargos,
-                        backgroundColor: '#4BC0C0',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y', // Horizontal
-                    responsive: true, maintainAspectRatio: false
-                }
-            });
-        }
-
-        // --- REPORTE DIARIO DETALLADO ---
-        function actualizarSelectsFiltro(registrosPeriodo) {
-            const selectFrente = document.getElementById('filtroFrente'); const selectCargo = document.getElementById('filtroCargo');
-            const frenteActual = selectFrente.value; const cargoActual = selectCargo.value;
-            const frentes = new Set(); const cargos = new Set();
-            registrosPeriodo.forEach(r => {
-                frentes.add(r.frente); const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
-                if(trab) cargos.add(trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim());
-            });
-            selectFrente.innerHTML = '<option value="TODOS">-- Todos --</option>';
-            [...frentes].sort().forEach(f => { const op = document.createElement('option'); op.value = f; op.text = f; selectFrente.appendChild(op); });
-            selectFrente.value = frenteActual; 
-            selectCargo.innerHTML = '<option value="TODOS">-- Todos --</option>';
-            [...cargos].sort().forEach(c => { const op = document.createElement('option'); op.value = c; op.text = c; selectCargo.appendChild(op); });
-            selectCargo.value = cargoActual; 
-        }
-
-        function consultarFiltroDetallado() {
-            const fechaInicio = document.getElementById('fechaInicio').value;
-            const fechaFin = document.getElementById('fechaFin').value;
-            const frenteSel = document.getElementById('filtroFrente').value;
-            const cargoSel = document.getElementById('filtroCargo').value;
-            const registrosFiltrados = registros.filter(r => {
-                if (r.fecha < fechaInicio || r.fecha > fechaFin) return false;
-                if (frenteSel !== 'TODOS' && r.frente !== frenteSel) return false;
-                const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
-                const cargoTrab = trab ? trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim() : 'SIN DEFINIR';
-                if (cargoSel !== 'TODOS' && cargoTrab !== cargoSel) return false;
-                return true;
-            });
-            const agrupacion = {};
-            registrosFiltrados.forEach(r => {
-                const trab = trabajadores.find(t => t.cedula === r.trabajadorCedula);
-                const cargo = trab ? trab.cargo.toString().toUpperCase().replace(/\s+/g, ' ').trim() : 'SIN DEFINIR';
-                const clave = `${r.fecha}|${r.frente}|${cargo}`;
-                if (!agrupacion[clave]) { agrupacion[clave] = { fecha: r.fecha, frente: r.frente, cargo: cargo, personas: new Set() }; }
-                agrupacion[clave].personas.add(r.trabajadorCedula);
-            });
-            const lista = Object.values(agrupacion).map(item => ({ fecha: item.fecha, frente: item.frente, cargo: item.cargo, cantidad: item.personas.size }))
-                .sort((a, b) => { if (a.fecha < b.fecha) return 1; if (a.fecha > b.fecha) return -1; if (a.frente < b.frente) return -1; if (a.frente > b.frente) return 1; return 0; });
-            const tbody = document.getElementById('bodyFiltroDetallado'); const tabla = document.getElementById('tablaFiltroDetallado'); const mensaje = document.getElementById('mensajeSinResultados');
-            tbody.innerHTML = '';
-            if (lista.length === 0) { tabla.style.display = 'none'; mensaje.style.display = 'block'; } else {
-                tabla.style.display = 'table'; mensaje.style.display = 'none';
-                lista.forEach(item => { const tr = document.createElement('tr'); tr.innerHTML = `<td>${item.fecha}</td><td>${item.frente}</td><td>${item.cargo}</td><td>${item.cantidad}</td>`; tbody.appendChild(tr); });
-            }
-        }
-
-        // --- AUXILIARES ---
-        function initStats(stats, frente) { stats[frente] = { dirP: new Set(), indirP: new Set(), hDirP: 0, hIndirP: 0, hDirAcum: 0, hIndirAcum: 0 }; }
-        function verDetalle(frente, tipo, idsStr) { if(!idsStr) return alert("Nadie."); mostrarAlerta(`Personal en ${frente} (${tipo})`, idsStr.split(',')); }
-        function verDetalleCargo(cargo, idsStr) { if(!idsStr) return alert("Nadie."); mostrarAlerta(`Cargo: ${cargo}`, idsStr.split(',')); }
-        function mostrarAlerta(titulo, ids) { const nombres = ids.map(id => { const t = trabajadores.find(tr => tr.cedula === id); return t ? `${t.nombreCompleto}` : `Desconocido (${id})`; }).sort(); alert(`${titulo}\n------------------\n${nombres.join('\n')}\n------------------\nTotal: ${nombres.length}`); }
-
-        // --- GESTIÓN TRABAJADORES ---
-        document.getElementById('formTrabajador').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const cedula = document.getElementById('cedula').value; const cedulaOriginal = document.getElementById('cedulaOriginal').value;
-            const data = { cedula: cedula, nombreCompleto: document.getElementById('nombreCompleto').value, cargo: document.getElementById('cargo').value, tipoCargo: document.getElementById('tipoCargo').value, fechaIngreso: document.getElementById('fechaIngreso').value, fechaRetiro: document.getElementById('fechaRetiro').value || '' };
-            try {
-                await fetch(webAppUrl, { method: 'POST', body: JSON.stringify({ action: cedulaOriginal ? 'updateTrabajador' : 'addTrabajador', ...data }) });
-                if(cedulaOriginal) { const idx = trabajadores.findIndex(t => t.cedula === cedulaOriginal); if(idx !== -1) trabajadores[idx] = data; } else { trabajadores.push(data); }
-                actualizarTablaTrabajadores(); actualizarSelectTrabajadores(); cerrarModalTrabajador(); alert('✓ Trabajador guardado');
-            } catch (error) { alert('❌ Error'); }
-        });
-
-        // --- SINCRONIZACIÓN ---
-        function cargarConfiguracion() {
-            webAppUrl = localStorage.getItem('webAppUrl') || '';
-            if (webAppUrl) { document.getElementById('webAppUrl').value = webAppUrl; isConfigured = true; document.getElementById('configBanner').className = 'config-banner success'; document.getElementById('configBanner').innerHTML = '<h3>✅ Sistema Conectado</h3>'; document.querySelectorAll('button[disabled]').forEach(b => b.disabled = false); sincronizar(); }
-        }
         async function sincronizar() {
             if (!isConfigured) return; setSyncStatus('syncing');
             try {
-                const resT = await fetch(webAppUrl + '?action=getTrabajadores'); const dataT = await resT.json();
+                const [resT, resR] = await Promise.all([fetch(webAppUrl + '?action=getTrabajadores'), fetch(webAppUrl + '?action=getRegistros')]);
+                const dataT = await resT.json(); const dataR = await resR.json();
+                
                 trabajadores = dataT.map(r => ({ cedula: String(r[0]), nombreCompleto: r[1], cargo: r[2], tipoCargo: r[3], fechaIngreso: normalizarFecha(r[4]), fechaRetiro: normalizarFecha(r[5]) }));
-                const resR = await fetch(webAppUrl + '?action=getRegistros'); const dataR = await resR.json();
-                registros = dataR.map(r => ({ id: r[0] || Date.now() + Math.random(), fecha: normalizarFecha(r[1]), trabajadorNombre: r[2], trabajadorCedula: String(r[3]), frente: r[4], horasDirecta: Number(r[5])||0, horasIndirecta: Number(r[6])||0 }));
+                registros = dataR.map(r => ({ id: r[0] || Date.now()+Math.random(), fecha: normalizarFecha(r[1]), trabajadorNombre: r[2], trabajadorCedula: String(r[3]), frente: r[4], horasDirecta: Number(r[5])||0, horasIndirecta: Number(r[6])||0 }));
+                
                 actualizarTablaTrabajadores(); actualizarSelectTrabajadores(); actualizarTabla(); actualizarEstadisticas(); actualizarGraficos();
                 setSyncStatus('synced');
-            } catch (error) { console.error(error); setSyncStatus('error'); }
+            } catch (e) { console.error(e); setSyncStatus('error'); }
         }
-        function normalizarFecha(f) { if (!f) return null; if (typeof f === 'number') { const d = new Date(1899, 11, 30); d.setDate(d.getDate() + (f - 1)); return d.toISOString().split('T')[0]; } if (typeof f === 'string' && f.includes('T')) return f.split('T')[0]; return f; }
-        function setSyncStatus(status) { const el = document.getElementById('syncStatus'); el.className = 'sync-status ' + status; el.textContent = status === 'synced' ? '✓ Sincronizado' : (status === 'syncing' ? '⟳ Sincronizando...' : '⚠ Error'); }
-        function actualizarTablaTrabajadores() { const tbody = document.getElementById('bodyTrabajadores'); tbody.innerHTML = trabajadores.map(t => `<tr><td>${t.cedula}</td><td>${t.nombreCompleto}</td><td>${t.cargo}</td><td>${t.tipoCargo}</td><td><button class="edit-btn" onclick="editarTrabajador('${t.cedula}')">Editar</button></td></tr>`).join(''); }
-        function actualizarSelectTrabajadores() { const s = document.getElementById('trabajadorSelect'); s.innerHTML = '<option value="">-- Seleccione --</option>' + trabajadores.filter(t=>!t.fechaRetiro).sort((a,b)=>a.nombreCompleto.localeCompare(b.nombreCompleto)).map(t => `<option value="${t.cedula}">${t.nombreCompleto}</option>`).join(''); }
-        function actualizarTabla() { const tbody = document.getElementById('bodyRegistros'); registros.sort((a,b) => new Date(b.fecha) - new Date(a.fecha)); tbody.innerHTML = registros.slice(0, 200).map(r => `<tr><td>${r.fecha}</td><td>${r.trabajadorNombre}</td><td>${r.trabajadorCedula}</td><td>${r.frente}</td><td>${(r.horasDirecta+r.horasIndirecta).toFixed(1)}</td><td><button class="delete-btn" onclick="eliminarRegistro('${r.id}')">Eliminar</button></td></tr>`).join(''); }
-        async function eliminarRegistro(id) { if(!confirm('¿Eliminar?')) return; const reg = registros.find(r => r.id == id); if(!reg) return; document.getElementById('loadingRegistro').classList.add('active'); try { await fetch(webAppUrl, { method: 'POST', body: JSON.stringify({ action: 'deleteRegistro', id:id, fecha:reg.fecha, cedula:reg.trabajadorCedula }) }); registros = registros.filter(r => r.id != id); actualizarTabla(); actualizarEstadisticas(); alert('✓ Eliminado'); } catch (e) { alert('Error al eliminar'); } finally { document.getElementById('loadingRegistro').classList.remove('active'); } }
-        function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(id).classList.add('active'); event.target.classList.add('active');
-            if(id === 'estadisticas') actualizarEstadisticas();
-            if(id === 'graficos') actualizarGraficos();
+        
+        function setSyncStatus(st) { 
+            const el = document.getElementById('syncStatus'); 
+            el.className = 'sync-status ' + st; 
+            el.textContent = st === 'synced' ? '✓ OK' : (st === 'syncing' ? '⟳ Sync...' : '⚠ Error'); 
         }
-        function mostrarModalTrabajador() { document.getElementById('cedulaOriginal').value = ''; document.getElementById('formTrabajador').reset(); document.getElementById('modalTitle').textContent = 'Nuevo Trabajador'; document.getElementById('modalTrabajador').style.display = 'block'; }
-        function editarTrabajador(cedula) { const t = trabajadores.find(x => x.cedula === cedula); if(!t) return; document.getElementById('cedulaOriginal').value = cedula; document.getElementById('cedula').value = t.cedula; document.getElementById('nombreCompleto').value = t.nombreCompleto; document.getElementById('cargo').value = t.cargo; document.getElementById('tipoCargo').value = t.tipoCargo; document.getElementById('fechaIngreso').value = t.fechaIngreso; document.getElementById('fechaRetiro').value = t.fechaRetiro || ''; document.getElementById('modalTitle').textContent = 'Editar Trabajador'; document.getElementById('modalTrabajador').style.display = 'block'; }
-        function cerrarModalTrabajador() { document.getElementById('modalTrabajador').style.display = 'none'; }
-        function filtrarTrabajadores() { const q = document.getElementById('buscarTrabajador').value.toLowerCase(); document.querySelectorAll('#bodyTrabajadores tr').forEach(tr => { tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none'; }); }
+
+        // --- REGISTROS ---
+        document.getElementById('registroForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const data = {
+                fecha: document.getElementById('fecha').value,
+                trabajadorCedula: document.getElementById('trabajadorSelect').value,
+                frente: document.getElementById('frente').value.toUpperCase(),
+                horasDirecta: parseFloat(document.getElementById('horasDirecta').value)||0,
+                horasIndirecta: parseFloat(document.getElementById('horasIndirecta').value)||0
+            };
+            if(data.horasDirecta===0 && data.horasIndirecta===0) return alert('Ingrese horas');
+            const trab = trabajadores.find(t=>t.cedula===data.trabajadorCedula);
+            if(existeRegistro(data.fecha, data.trabajadorCedula)) return alert(`⚠️ Ya registrado hoy`);
+            
+            enviarRegistro({ ...data, trabajadorNombre: trab.nombreCompleto, id: Date.now() }, e.target);
+        });
+
+        document.getElementById('registroMasivoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const sels = Array.from(document.querySelectorAll('#listaTrabajadoresMasivo input:checked')).map(c=>c.value);
+            if(!sels.length) return alert('Seleccione trabajadores');
+            
+            const base = {
+                fecha: document.getElementById('fechaMasiva').value,
+                frente: document.getElementById('frenteMasivo').value.toUpperCase(),
+                horasDirecta: parseFloat(document.getElementById('horasDirectaMasiva').value)||0,
+                horasIndirecta: parseFloat(document.getElementById('horasIndirectaMasiva').value)||0
+            };
+            
+            if(!confirm(`¿Registrar ${sels.length} personas?`)) return;
+            document.getElementById('loadingRegistro').classList.add('active');
+            
+            let count = 0;
+            for(const ced of sels) {
+                if(existeRegistro(base.fecha, ced)) continue;
+                const t = trabajadores.find(tr=>tr.cedula===ced);
+                const reg = { ...base, trabajadorCedula: ced, trabajadorNombre: t.nombreCompleto };
+                try { await fetch(webAppUrl, { method:'POST', body:JSON.stringify({action:'addRegistro', ...reg}) }); registros.push(reg); count++; } catch(e){}
+            }
+            actualizarTabla(); actualizarEstadisticas();
+            document.getElementById('loadingRegistro').classList.remove('active');
+            alert(`✓ Registrados: ${count}`); mostrarRegistroSimple();
+        });
+
+        async function enviarRegistro(reg, form) {
+            document.getElementById('loadingRegistro').classList.add('active');
+            try {
+                await fetch(webAppUrl, { method:'POST', body:JSON.stringify({action:'addRegistro', ...reg}) });
+                registros.push(reg); actualizarTabla(); actualizarEstadisticas();
+                form.reset(); document.getElementById('fecha').valueAsDate = new Date();
+                alert('✓ Guardado');
+            } catch(e) { alert('Error'); } finally { document.getElementById('loadingRegistro').classList.remove('active'); }
+        }
+
+        // --- VISTAS ---
+        function actualizarTabla() {
+            document.getElementById('bodyRegistros').innerHTML = registros.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).slice(0,200).map(r=>
+                `<tr><td>${r.fecha}</td><td>${r.trabajadorNombre}</td><td>${r.trabajadorCedula}</td><td>${r.frente}</td><td>${(r.horasDirecta+r.horasIndirecta).toFixed(1)}</td><td><button class="delete-btn" onclick="eliminarRegistro('${r.id}')">Eliminar</button></td></tr>`
+            ).join('');
+        }
+        async function eliminarRegistro(id) {
+            if(!confirm('¿Eliminar?')) return;
+            const r = registros.find(x=>x.id==id);
+            try { await fetch(webAppUrl, { method:'POST', body:JSON.stringify({action:'deleteRegistro', id:id, fecha:r.fecha, cedula:r.trabajadorCedula}) }); registros=registros.filter(x=>x.id!=id); actualizarTabla(); actualizarEstadisticas(); } catch(e){alert('Error');}
+        }
+
+        // --- ESTADISTICAS ---
+        function actualizarEstadisticas() {
+            const fi = document.getElementById('fechaInicio').value, ff = document.getElementById('fechaFin').value;
+            const periodRegs = registros.filter(r => r.fecha >= fi && r.fecha <= ff);
+            
+            actualizarSelectsFiltro(periodRegs);
+            
+            // Frentes
+            const stats = {};
+            registros.forEach(r => {
+                if(r.fecha <= ff) {
+                    if(!stats[r.frente]) stats[r.frente] = { dirP:new Set(), indirP:new Set(), hd:0, hi:0, hda:0, hia:0 };
+                    stats[r.frente].hda += r.horasDirecta; stats[r.frente].hia += r.horasIndirecta;
+                }
+            });
+            periodRegs.forEach(r => {
+                if(!stats[r.frente]) stats[r.frente] = { dirP:new Set(), indirP:new Set(), hd:0, hi:0, hda:0, hia:0 };
+                if(r.horasDirecta>0) stats[r.frente].dirP.add(r.trabajadorCedula);
+                if(r.horasIndirecta>0) stats[r.frente].indirP.add(r.trabajadorCedula);
+                stats[r.frente].hd += r.horasDirecta; stats[r.frente].hi += r.horasIndirecta;
+            });
+            
+            const tbody = document.getElementById('statsBody'); tbody.innerHTML = '';
+            let T={dp:0, ip:0, hd:0, hi:0, hda:0, hia:0};
+            
+            Object.keys(stats).sort().forEach(k => {
+                const s = stats[k]; const dp = s.dirP.size, ip = s.indirP.size;
+                T.dp+=dp; T.ip+=ip; T.hd+=s.hd; T.hi+=s.hi; T.hda+=s.hda; T.hia+=s.hia;
+                tbody.innerHTML += `<tr><td class="frente-col">${k}</td><td class="clickable-number" onclick="verP('${k}','Dir', '${[...s.dirP]}')">${dp}</td><td class="clickable-number" onclick="verP('${k}','Ind', '${[...s.indirP]}')">${ip}</td><td>${s.hd.toFixed(1)}</td><td>${s.hi.toFixed(1)}</td><td>${s.hda.toFixed(1)}</td><td>${s.hia.toFixed(1)}</td></tr>`;
+            });
+            tbody.innerHTML += `<tr class="total-row"><td class="frente-col">SUBTOTAL</td><td>${T.dp}</td><td>${T.ip}</td><td>${T.hd.toFixed(1)}</td><td>${T.hi.toFixed(1)}</td><td>${T.hda.toFixed(1)}</td><td>${T.hia.toFixed(1)}</td></tr>`;
+            tbody.innerHTML += `<tr class="grand-total-row"><td class="frente-col">TOTAL</td><td colspan="2">${T.dp+T.ip}</td><td colspan="2">${(T.hd+T.hi).toFixed(1)}</td><td colspan="2">${(T.hda+T.hia).toFixed(1)}</td></tr>`;
+            
+            // Cargos
+            const cStats={}; const pTotal = new Set();
+            periodRegs.forEach(r => {
+                pTotal.add(r.trabajadorCedula); const t = trabajadores.find(x=>x.cedula===r.trabajadorCedula);
+                const c = t ? t.cargo.toUpperCase().trim() : '?';
+                if(!cStats[c]) cStats[c] = new Set(); cStats[c].add(r.trabajadorCedula);
+            });
+            const tbC = document.getElementById('statsCargosBody'); tbC.innerHTML = '';
+            Object.keys(cStats).map(k=>({k, n:cStats[k].size, ids:[...cStats[k]]})).sort((a,b)=>b.n-a.n).forEach(x => {
+                tbC.innerHTML += `<tr><td style="text-align:left;padding-left:10px;">${x.k}</td><td class="clickable-number" onclick="verC('${x.k}','${x.ids}')">${x.n}</td><td>${(x.n/pTotal.size*100).toFixed(1)}%</td></tr>`;
+            });
+            tbC.innerHTML += `<tr class="total-row"><td style="text-align:left;padding-left:10px;">TOTAL PERSONAS</td><td>${pTotal.size}</td><td>100%</td></tr>`;
+        }
+        
+        function verP(f,t,ids){ if(!ids)return; alert(`${f} (${t}):\n` + ids.split(',').map(i=>(trabajadores.find(x=>x.cedula===i)||{}).nombreCompleto||i).join('\n')); }
+        function verC(c,ids){ if(!ids)return; alert(`Cargo ${c}:\n` + ids.split(',').map(i=>(trabajadores.find(x=>x.cedula===i)||{}).nombreCompleto||i).join('\n')); }
+
+        // --- GRAFICOS (Chart.js) ---
+        function actualizarGraficos() {
+            const fi = document.getElementById('fechaInicioGraf').value;
+            const ff = document.getElementById('fechaFinGraf').value;
+            const regG = registros.filter(r => r.fecha >= fi && r.fecha <= ff);
+
+            // 1. Evolución
+            const dias = {};
+            regG.forEach(r => { if(!dias[r.fecha]) dias[r.fecha]=new Set(); dias[r.fecha].add(r.trabajadorCedula); });
+            const labelsEvo = Object.keys(dias).sort();
+            
+            if(chartEvolucionInstance) chartEvolucionInstance.destroy();
+            chartEvolucionInstance = new Chart(document.getElementById('chartEvolucion'), {
+                type: 'line',
+                data: { labels: labelsEvo, datasets: [{ label: 'Personas', data: labelsEvo.map(d=>dias[d].size), borderColor: '#667eea', backgroundColor: 'rgba(102,126,234,0.1)', fill: true, tension: 0.3 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+
+            // 2. Distribución & 3. Eficiencia
+            const fStats = {};
+            regG.forEach(r => {
+                if(!fStats[r.frente]) fStats[r.frente] = {t:0, d:0, i:0};
+                const h = r.horasDirecta+r.horasIndirecta;
+                fStats[r.frente].t += h; fStats[r.frente].d += r.horasDirecta; fStats[r.frente].i += r.horasIndirecta;
+            });
+            const lblF = Object.keys(fStats).sort();
+            
+            if(chartDistribucionInstance) chartDistribucionInstance.destroy();
+            chartDistribucionInstance = new Chart(document.getElementById('chartDistribucion'), {
+                type: 'doughnut',
+                data: { labels: lblF, datasets: [{ data: lblF.map(f=>fStats[f].t), backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40'] }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } } }
+            });
+
+            if(chartEficienciaInstance) chartEficienciaInstance.destroy();
+            chartEficienciaInstance = new Chart(document.getElementById('chartEficiencia'), {
+                type: 'bar',
+                data: { labels: lblF, datasets: [{ label: 'Directa', data: lblF.map(f=>fStats[f].d), backgroundColor: '#36A2EB' }, { label: 'Indirecta', data: lblF.map(f=>fStats[f].i), backgroundColor: '#9966FF' }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
+            });
+
+            // 4. Top Cargos
+            const cStats = {};
+            regG.forEach(r => {
+                const t = trabajadores.find(x=>x.cedula===r.trabajadorCedula); const c = t?t.cargo.toUpperCase():'?';
+                cStats[c] = (cStats[c]||0) + r.horasDirecta + r.horasIndirecta;
+            });
+            const topC = Object.entries(cStats).sort((a,b)=>b[1]-a[1]).slice(0,5);
+            
+            if(chartTopCargosInstance) chartTopCargosInstance.destroy();
+            chartTopCargosInstance = new Chart(document.getElementById('chartTopCargos'), {
+                type: 'bar',
+                data: { labels: topC.map(x=>x[0]), datasets: [{ label: 'Horas', data: topC.map(x=>x[1]), backgroundColor: '#4BC0C0' }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        // --- MATRIZ ---
+        function generarMatrizPersonal() {
+            const fi = document.getElementById('fechaInicio').value, ff = document.getElementById('fechaFin').value;
+            const regs = registros.filter(r => r.fecha >= fi && r.fecha <= ff);
+            const tb = document.getElementById('tablaMatriz'), msg = document.getElementById('mensajeMatrizVacia');
+            
+            if(!regs.length) { tb.style.display='none'; msg.style.display='block'; return; }
+            
+            const fs = new Set(), cs = new Set(), d = {};
+            regs.forEach(r => {
+                const t = trabajadores.find(x=>x.cedula===r.trabajadorCedula), c = t?t.cargo.toUpperCase().trim():'?';
+                fs.add(r.frente); cs.add(c);
+                if(!d[c]) d[c]={}; if(!d[c][r.frente]) d[c][r.frente]=new Set();
+                d[c][r.frente].add(r.trabajadorCedula);
+            });
+            
+            const fOrd = [...fs].sort(), cOrd = [...cs].sort();
+            document.getElementById('headerMatriz').innerHTML = `<tr><th style="min-width:150px">CARGO</th>${fOrd.map(f=>`<th>${f}</th>`).join('')}<th class="matrix-total-col">TOTAL</th></tr>`;
+            
+            const colTot = {}; fOrd.forEach(f=>colTot[f]=0); let gTot=0;
+            document.getElementById('bodyMatriz').innerHTML = cOrd.map(c => {
+                let rowTot = 0, cells = '';
+                fOrd.forEach(f => {
+                    const n = d[c][f]?d[c][f].size:0; rowTot+=n; colTot[f]+=n;
+                    cells += `<td style="${n?'font-weight:bold;color:#333':'color:#ccc'}">${n||'-'}</td>`;
+                });
+                gTot+=rowTot;
+                return `<tr><td>${c}</td>${cells}<td class="matrix-total-col">${rowTot}</td></tr>`;
+            }).join('');
+            
+            document.getElementById('footerMatriz').innerHTML = `<tr class="total-row"><td>TOTAL</td>${fOrd.map(f=>`<td>${colTot[f]}</td>`).join('')}<td class="matrix-total-col">${gTot}</td></tr>`;
+            tb.style.display='block'; msg.style.display='none';
+        }
+
+        // --- REPORTE DIARIO ---
+        function actualizarSelectsFiltro(regs) {
+            const sf = document.getElementById('filtroFrente'), sc = document.getElementById('filtroCargo');
+            const vf = sf.value, vc = sc.value;
+            const fs=new Set(), cs=new Set();
+            regs.forEach(r=>{ fs.add(r.frente); const t=trabajadores.find(x=>x.cedula===r.trabajadorCedula); if(t) cs.add(t.cargo.toUpperCase().trim()); });
+            
+            sf.innerHTML = '<option value="TODOS">Todos</option>' + [...fs].sort().map(f=>`<option value="${f}">${f}</option>`).join('');
+            sc.innerHTML = '<option value="TODOS">Todos</option>' + [...cs].sort().map(c=>`<option value="${c}">${c}</option>`).join('');
+            sf.value = vf; sc.value = vc;
+        }
+
+        function consultarFiltroDetallado() {
+            const fi = document.getElementById('fechaInicio').value, ff = document.getElementById('fechaFin').value;
+            const vf = document.getElementById('filtroFrente').value, vc = document.getElementById('filtroCargo').value;
+            
+            const fil = registros.filter(r => {
+                if(r.fecha < fi || r.fecha > ff) return false;
+                if(vf!=='TODOS' && r.frente!==vf) return false;
+                const t=trabajadores.find(x=>x.cedula===r.trabajadorCedula), c=t?t.cargo.toUpperCase().trim():'?';
+                return vc==='TODOS' || c===vc;
+            });
+            
+            const ag = {};
+            fil.forEach(r => {
+                const t=trabajadores.find(x=>x.cedula===r.trabajadorCedula), c=t?t.cargo.toUpperCase().trim():'?';
+                const k = `${r.fecha}|${r.frente}|${c}`;
+                if(!ag[k]) ag[k]={f:r.fecha, fr:r.frente, ca:c, s:new Set()};
+                ag[k].s.add(r.trabajadorCedula);
+            });
+            
+            const list = Object.values(ag).map(x=>({ ...x, n:x.s.size })).sort((a,b)=>a.f<b.f?1:(a.f>b.f?-1:(a.fr<b.fr?-1:1)));
+            const tb = document.getElementById('tablaFiltroDetallado'), msg = document.getElementById('mensajeSinResultados');
+            
+            if(!list.length) { tb.style.display='none'; msg.style.display='block'; return; }
+            document.getElementById('bodyFiltroDetallado').innerHTML = list.map(x=>`<tr><td>${x.f}</td><td>${x.fr}</td><td>${x.ca}</td><td>${x.n}</td></tr>`).join('');
+            tb.style.display='table'; msg.style.display='none';
+        }
+
+        // --- INTERFAZ ---
+        function showTab(id) { document.querySelectorAll('.tab-content,.tab').forEach(e=>e.classList.remove('active')); document.getElementById(id).classList.add('active'); event.target.classList.add('active'); if(id==='estadisticas')actualizarEstadisticas(); if(id==='graficos')actualizarGraficos(); }
+        
+        function mostrarRegistroSimple() { document.getElementById('formSimple').style.display='block'; document.getElementById('formMasivo').style.display='none'; }
+        function mostrarRegistroMasivo() { document.getElementById('formSimple').style.display='none'; document.getElementById('formMasivo').style.display='block'; cargarListaTrabajadoresMasivo(); }
+        
+        function cargarListaTrabajadoresMasivo() {
+            const l = document.getElementById('listaTrabajadoresMasivo'); l.innerHTML = '';
+            trabajadores.filter(t=>!t.fechaRetiro).sort((a,b)=>a.nombreCompleto.localeCompare(b.nombreCompleto)).forEach(t => {
+                const d = document.createElement('div'); d.className='trabajador-checkbox';
+                d.innerHTML = `<input type="checkbox" value="${t.cedula}" onchange="document.getElementById('contadorSeleccionados').textContent=document.querySelectorAll('#listaTrabajadoresMasivo input:checked').length"><span>${t.nombreCompleto} <small>(${t.cargo})</small></span>`;
+                l.appendChild(d);
+            });
+        }
+        function filtrarTrabajadoresMasivo() { const q = document.getElementById('buscarTrabajadorMasivo').value.toLowerCase(); document.querySelectorAll('.trabajador-checkbox').forEach(e => e.style.display = e.textContent.toLowerCase().includes(q) ? 'flex' : 'none'); }
+        function seleccionarTodosTrabajadores() { document.querySelectorAll('#listaTrabajadoresMasivo input').forEach(c => {if(c.parentElement.style.display!=='none')c.checked=true}); document.getElementById('contadorSeleccionados').textContent=document.querySelectorAll('#listaTrabajadoresMasivo input:checked').length; }
+        function deseleccionarTodosTrabajadores() { document.querySelectorAll('#listaTrabajadoresMasivo input').forEach(c => c.checked=false); document.getElementById('contadorSeleccionados').textContent=0; }
+        
+        // --- TRABAJADORES UI ---
+        function mostrarModalTrabajador() { document.getElementById('cedulaOriginal').value=''; document.getElementById('formTrabajador').reset(); document.getElementById('modalTitle').textContent='Nuevo'; document.getElementById('modalTrabajador').style.display='block'; }
+        function cerrarModalTrabajador() { document.getElementById('modalTrabajador').style.display='none'; }
+        document.getElementById('formTrabajador').addEventListener('submit', async (e)=>{
+            e.preventDefault(); const co = document.getElementById('cedulaOriginal').value;
+            const data = { cedula:document.getElementById('cedula').value, nombreCompleto:document.getElementById('nombreCompleto').value, cargo:document.getElementById('cargo').value, tipoCargo:document.getElementById('tipoCargo').value, fechaIngreso:document.getElementById('fechaIngreso').value, fechaRetiro:document.getElementById('fechaRetiro').value };
+            try { await fetch(webAppUrl, {method:'POST', body:JSON.stringify({action:co?'updateTrabajador':'addTrabajador', ...data})}); 
+            if(co){ const i=trabajadores.findIndex(x=>x.cedula===co); trabajadores[i]=data; } else trabajadores.push(data);
+            actualizarTablaTrabajadores(); cerrarModalTrabajador(); alert('✓ Guardado'); } catch(e){ alert('Error'); }
+        });
+        function editarTrabajador(c) { const t=trabajadores.find(x=>x.cedula===c); if(!t)return; 
+            document.getElementById('cedulaOriginal').value=c; document.getElementById('cedula').value=t.cedula; document.getElementById('nombreCompleto').value=t.nombreCompleto; document.getElementById('cargo').value=t.cargo; document.getElementById('tipoCargo').value=t.tipoCargo; document.getElementById('fechaIngreso').value=t.fechaIngreso; document.getElementById('fechaRetiro').value=t.fechaRetiro;
+            document.getElementById('modalTitle').textContent='Editar'; document.getElementById('modalTrabajador').style.display='block';
+        }
+        function actualizarTablaTrabajadores(){ document.getElementById('bodyTrabajadores').innerHTML = trabajadores.map(t=>`<tr><td>${t.cedula}</td><td>${t.nombreCompleto}</td><td>${t.cargo}</td><td>${t.tipoCargo}</td><td><button class="edit-btn" onclick="editarTrabajador('${t.cedula}')">Edit</button></td></tr>`).join(''); }
+        function actualizarSelectTrabajadores(){ document.getElementById('trabajadorSelect').innerHTML = '<option value="">--</option>'+trabajadores.filter(t=>!t.fechaRetiro).sort((a,b)=>a.nombreCompleto.localeCompare(b.nombreCompleto)).map(t=>`<option value="${t.cedula}">${t.nombreCompleto}</option>`).join(''); }
+        function filtrarTrabajadores(){ const q = document.getElementById('buscarTrabajador').value.toLowerCase(); document.querySelectorAll('#bodyTrabajadores tr').forEach(r => r.style.display = r.textContent.toLowerCase().includes(q)?'':'none'); }
+
+        // --- IMPORT EXCEL ---
         function importarRegistrosExcel() { document.getElementById('fileImportRegistros').click(); }
-        function procesarArchivoRegistros(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = async function(ev) { try { const data = new Uint8Array(ev.target.result); const wb = XLSX.read(data, {type:'array'}); const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); if(!json.length) return alert('Excel vacío'); document.getElementById('loadingRegistro').classList.add('active'); let ok=0, err=0; for(const row of json) { const ced = row['Cedula']||row['CEDULA']||row['cedula']; const fec = row['Fecha']||row['FECHA']; const fre = row['Frente']||row['FRENTE']; if(!ced||!fec||!fre) { err++; continue; } const trab = trabajadores.find(t=>t.cedula == ced); if(!trab) { err++; continue; } let fechaFmt = fec; if(typeof fec === 'number') fechaFmt = normalizarFecha(fec); if(existeRegistro(fechaFmt, String(ced))) { err++; continue; } const reg = { fecha: fechaFmt, trabajadorNombre: trab.nombreCompleto, trabajadorCedula: trab.cedula, frente: String(fre).toUpperCase(), horasDirecta: row['Horas Directa']||0, horasIndirecta: row['Horas Indirecta']||0 }; try { await fetch(webAppUrl, { method:'POST', body:JSON.stringify({action:'addRegistro', ...reg})}); registros.push(reg); ok++; } catch(e){ err++; } } actualizarTabla(); actualizarEstadisticas(); alert(`Importados: ${ok}, Errores/Duplicados: ${err}`); } catch(e) { alert('Error Excel'); } finally { document.getElementById('loadingRegistro').classList.remove('active'); } }; reader.readAsArrayBuffer(file); }
+        function procesarArchivoRegistros(e) {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader();
+            r.onload = async (ev) => {
+                try {
+                    const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
+                    const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                    if(!json.length) return alert('Vacío');
+                    document.getElementById('loadingRegistro').classList.add('active');
+                    let ok=0;
+                    for(const row of json) {
+                        const ced = row['Cedula']||row['CEDULA'], fec = row['Fecha']||row['FECHA'], fre = row['Frente']||row['FRENTE'];
+                        if(!ced||!fec||!fre) continue;
+                        const t = trabajadores.find(x=>x.cedula==ced); if(!t) continue;
+                        const fFmt = typeof fec==='number' ? normalizarFecha(fec) : fec;
+                        if(existeRegistro(fFmt, String(ced))) continue;
+                        const reg = { fecha:fFmt, trabajadorNombre:t.nombreCompleto, trabajadorCedula:t.cedula, frente:String(fre).toUpperCase(), horasDirecta:row['Horas Directa']||0, horasIndirecta:row['Horas Indirecta']||0 };
+                        try { await fetch(webAppUrl, {method:'POST', body:JSON.stringify({action:'addRegistro', ...reg})}); registros.push(reg); ok++; } catch(e){}
+                    }
+                    actualizarTabla(); actualizarEstadisticas(); alert(`✓ Importados: ${ok}`);
+                } catch(e) { alert('Error Archivo'); } finally { document.getElementById('loadingRegistro').classList.remove('active'); }
+            };
+            r.readAsArrayBuffer(f);
+        }
     </script>
 </body>
 </html>
